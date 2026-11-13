@@ -297,7 +297,7 @@ export type ForumUploadSignature = {
   api_key: string;
   timestamp: number;
   public_id: string;
-  folder: string;
+  asset_folder: string;
   allowed_formats: string;
   upload_preset: string;
   overwrite: string;
@@ -310,6 +310,27 @@ export type ForumMediaAsset = {
   format: string | null;
   bytes: number | null;
   uploaded_at: string | null;
+};
+
+export type MarketplaceUploadSignature = {
+  asset_id: string;
+  cloud_name: string;
+  api_key: string;
+  timestamp: number;
+  public_id: string;
+  asset_folder: string;
+  allowed_formats: string;
+  upload_preset: string;
+  overwrite: string;
+  signature: string;
+};
+
+export type MarketplaceMediaAsset = {
+  id: string;
+  url?: string | null;
+  format?: string | null;
+  bytes?: number | null;
+  uploaded_at?: string | null;
 };
 
 export type ApiErrorResponse = {

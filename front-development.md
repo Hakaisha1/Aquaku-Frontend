@@ -129,13 +129,44 @@ Aturan foto:
 - Maksimal 8 foto per listing, JPEG/PNG/WebP, maksimal 5 MB per foto.
 - Jangan membuat listing dengan URL upload yang belum diverifikasi backend.
 
-### Alur upload foto
+### Alur signed upload foto Cloudinary
 
-1. `POST /marketplace/media/upload-signatures` untuk memperoleh `asset_id` dan parameter signed upload.
-2. Upload file langsung ke Cloudinary menggunakan parameter response.
-3. `POST /marketplace/media/confirm-upload` dengan `asset_id`.
-4. Setelah sukses, kirim ID aset terverifikasi di `photo_ids` saat membuat/memperbarui listing.
-5. Hapus foto melalui `DELETE /marketplace/media/{assetId}`. Mengubah `photo_ids` tidak menghapus foto lama secara otomatis.
+Backend membuat reservasi `asset_id` dan signature. Frontend mengunggah file langsung ke Cloudinary, lalu meminta backend memverifikasi hasilnya. Gunakan flow sesuai tujuan; endpoint dan foldernya berbeda:
+
+| Tujuan | Minta signature | Konfirmasi | `asset_folder` yang wajib diterima |
+| --- | --- | --- | --- |
+| Marketplace/listing | `POST /marketplace/media/upload-signatures` | `POST /marketplace/media/confirm-upload` | `aquaku/listings` |
+| Forum/post | `POST /forum/media/upload-signatures` | `POST /forum/media/confirm-upload` | `aquaku/forum` |
+
+Kedua endpoint backend memerlukan `Authorization: Bearer <access-token>` dari akun dengan HP terverifikasi. Upload langsung ke Cloudinary tidak memakai Bearer token aplikasi dan tidak boleh memakai `CLOUDINARY_API_SECRET`.
+
+Urutan upload:
+
+1. POST ke endpoint signature yang sesuai. Ambil `const signed = signatureResponse.data`; object ini memuat `asset_id`, `cloud_name`, `api_key`, `timestamp`, `public_id`, `asset_folder`, `allowed_formats`, `upload_preset`, `overwrite`, dan `signature`.
+2. Validasi `asset_folder` sama persis dengan folder untuk tujuan di tabel. Jika field hilang atau masih bernama `folder`, hentikan proses dan pastikan backend staging sudah ter-deploy dengan versi terbaru.
+3. Kirim file dan semua parameter signed berikut tanpa mengganti nama atau nilainya:
+
+   ```js
+   const form = new FormData();
+   form.append('file', file);
+   for (const key of [
+     'api_key', 'timestamp', 'public_id', 'asset_folder',
+     'allowed_formats', 'upload_preset', 'overwrite', 'signature',
+   ]) {
+     form.append(key, String(signed[key]));
+   }
+
+   const uploaded = await fetch(
+     `https://api.cloudinary.com/v1_1/${signed.cloud_name}/image/upload`,
+     { method: 'POST', body: form },
+   );
+   ```
+
+   Jangan set header `Content-Type` sendiri untuk `FormData`; browser harus menambahkan multipart boundary. `cloud_name` dipakai di URL, bukan sebagai field form. Jangan kirim field lama `folder`.
+4. Jika upload Cloudinary berhasil, POST ke endpoint `confirm-upload` pasangannya dengan Bearer token dan body `{"asset_id":"<asset_id dari signature>"}`. Gunakan `data.id` dari response konfirmasi sebagai ID foto aplikasi; jangan kirim `public_id` atau URL Cloudinary sebagai `photo_ids`.
+5. Untuk listing, kirim ID terkonfirmasi di `photo_ids` saat membuat/memperbarui listing. Untuk forum, kirim ID terkonfirmasi di `photo_ids` saat membuat posting. Hapus media listing melalui `DELETE /marketplace/media/{assetId}`; mengubah `photo_ids` tidak otomatis menghapus foto lama.
+
+Jika Cloudinary mengembalikan `401 Invalid Signature`, pastikan semua field di atas berasal dari satu response signature yang sama dan `asset_folder` tidak kosong. Jika Cloudinary mengembalikan `403` dengan pesan permission `create`, folder role Contributor untuk API key backend belum diberikan pada folder tujuan; ini perlu diperbaiki di Cloudinary, bukan di frontend. `503` dari backend biasanya menandakan konfigurasi Cloudinary belum tersedia.
 
 ### Status dan tindakan listing
 
@@ -215,7 +246,13 @@ Moderasi listing hanya hide/restore, bukan suspend akun:
 
 Sembunyikan kontrol admin untuk pengguna non-admin, tetapi tetap tangani `403`. Jangan menyimpulkan laporan pengguna otomatis menangguhkan akun.
 
-## 10. Error dan sinkronisasi UI
+## 10. Forum
+
+Baca `GET /forum/categories`, `GET /forum/posts?page=1&limit=20`, dan detail/komentar tanpa token. Daftar kategori dikelola admin; jika masih kosong, minta admin membuat kategori terlebih dahulu.
+
+Untuk membuat posting atau komentar, user harus login dan HP terverifikasi. Untuk foto forum, ikuti alur signed upload Cloudinary di bagian marketplace di atas, tetapi gunakan endpoint forum dan pastikan `asset_folder` bernilai `aquaku/forum`. Setelah `confirm-upload` sukses, kirim `POST /forum/posts` dengan `category_id`, `title`, `body`, dan opsional `photo_ids` berisi `data.id` aset terkonfirmasi.
+
+Backend memeriksa kepemilikan, format, dan ukuran foto; jangan mengirim URL foto bebas. `PATCH /forum/posts/{postId}` hanya untuk penulis dan tidak mengubah foto. Penulis dapat menghapus posting/komentarnya sendiri. Laporan dan hide/restore hanya dikelola admin melalui endpoint `/forum/admin/*`; tampilkan `409` jika laporan duplikat atau status moderasi sudah berubah.
 
 | HTTP | Perilaku yang disarankan |
 | --- | --- |
@@ -225,11 +262,11 @@ Sembunyikan kontrol admin untuk pengguna non-admin, tetapi tetap tangani `403`. 
 | `404` | Resource tidak ditemukan/tidak publik; arahkan kembali ke daftar atau tampilkan unavailable. |
 | `409` | State/kuota/duplikasi sudah berubah; refresh detail, quota, transaksi, atau antrean sebelum aksi berikutnya. |
 | `429` | Batas OTP/request tercapai; tampilkan waktu tunggu dan nonaktifkan aksi sementara. |
-| `503` | Integrasi atau layanan belum tersedia, misalnya Cloudinary/OTP; tampilkan pesan sementara dan jangan terus retry. |
+| `503` | Integrasi atau layanan belum tersedia, misalnya Cloudinary, OTP, MongoDB, atau PostgreSQL; tampilkan pesan sementara dan jangan terus retry. |
 
 Untuk mutasi yang timeout atau response-nya tidak diketahui, refresh data server sebelum mengulang. Ini mencegah tindakan ganda pada listing, laporan, pembayaran manual, dan transaksi.
 
-## 11. Checklist QA frontend
+## 12. Checklist QA frontend
 
 - [ ] Import `openapi.yaml` ke Bruno; server default mengarah ke Railway staging.
 - [ ] Endpoint publik regions/taxonomy/listings dapat dibuka tanpa token.
@@ -242,9 +279,10 @@ Untuk mutasi yang timeout atau response-nya tidak diketahui, refresh data server
 - [ ] Buyer yang benar dapat konfirmasi; penolakan tidak mengaktifkan listing; rating hanya setelah confirmed.
 - [ ] Rating duplikat dan laporan open duplikat menangani `409` tanpa membuat data ganda.
 - [ ] Role member/admin diuji; admin endpoints menolak member dengan `403`.
+- [ ] Forum dapat dibaca publik dengan pagination; posting, foto, komentar, laporan, dan moderasi sesuai hak akses.
 - [ ] Upload dan error Cloudinary diuji jika konfigurasi tersedia.
 - [ ] Tidak ada token, OTP, bukti transfer, atau secret yang ditulis ke log/analitik.
 
-## 12. Batasan sebelum production
+## 13. Batasan sebelum production
 
-Staging saat ini untuk QA internal dan memakai OTP.ID jika `OTP_ID_API_KEY` terpasang; pengujian pengiriman OTP dapat memakai kredit akun. Jangan gunakan data pengguna nyata atau membagikan OTP/token. Untuk production, pastikan `OTP_ID_API_KEY` sudah diisi pada environment Railway production secara terpisah dan tetap server-side. Rilis juga memerlukan kredensial/preset Cloudinary, verifikasi terbaru data wilayah Semarang, proteksi secret, dan tinjauan operasional/security. Lihat [`timeline.md`](timeline.md) untuk gerbang kesiapan rilis.
+Staging saat ini untuk QA internal dan memakai OTP.ID jika `OTP_ID_API_KEY` terpasang; pengujian pengiriman OTP dapat memakai kredit akun. Forum memerlukan `MONGODB_URI` di backend staging. Jangan gunakan data pengguna nyata atau membagikan OTP/token. Sebelum deploy production, isi `OTP_ID_API_KEY` dan `MONGODB_URI` pada environment Railway production secara terpisah dan tetap server-side. Rilis juga memerlukan kredensial/preset Cloudinary, verifikasi terbaru data wilayah Semarang, proteksi secret, dan tinjauan operasional/security. Lihat [`timeline.md`](timeline.md) untuk gerbang kesiapan rilis.
