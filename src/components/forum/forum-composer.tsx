@@ -9,6 +9,11 @@ import {
   type ForumPost,
   backendPostToForumPost,
 } from "@/lib/forum-data";
+import {
+  validateForumPostInput,
+  validateForumPhotoAttachment,
+  buildCreateForumPostPayload,
+} from "@/lib/forum-post-validator";
 import type { LocalForumPost } from "@/lib/forum-session";
 import type { BackendForumCategory } from "@/types/api";
 import { useAuth } from "@/context/auth-context";
@@ -50,8 +55,12 @@ export function ForumComposer({
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Ukuran foto maksimal 5 MB.");
+    const photoValidation = validateForumPhotoAttachment({
+      size: file.size,
+      type: file.type,
+    });
+    if (!photoValidation.valid) {
+      setError(photoValidation.error);
       return;
     }
     setPhotoFile(file);
@@ -129,22 +138,28 @@ export function ForumComposer({
 
     const form = event.currentTarget;
     const data = new FormData(form);
-    const title = String(data.get("title") ?? "").trim();
-    const body = String(data.get("body") ?? "").trim();
-    const categoryName = String(data.get("category") ?? "");
+    const rawTitle = data.get("title");
+    const rawBody = data.get("body");
+    const rawCategory = data.get("category");
 
-    if (
-      title.length < 8 ||
-      title.length > 120 ||
-      body.length < 20 ||
-      body.length > 5000 ||
-      !categoryName
-    ) {
-      setError(
-        "Judul perlu minimal 8 karakter dan cerita minimal 20 karakter, bukan hanya spasi. Pilih juga kategori diskusinya.",
-      );
+    const validCategories =
+      backendCategories.length > 0
+        ? backendCategories.map((c) => c.name)
+        : forumCategories;
+
+    const validation = validateForumPostInput({
+      title: rawTitle,
+      body: rawBody,
+      category: rawCategory,
+      validCategories,
+    });
+
+    if (!validation.valid) {
+      setError(validation.error);
       return;
     }
+
+    const { title, body, category: categoryName } = validation.sanitized;
 
     // If user is authenticated and verified, attempt to post to backend
     if (user && backendCategories.length > 0) {
@@ -171,12 +186,14 @@ export function ForumComposer({
             }
           }
 
-          const backendPost = await api.createForumPost({
-            category_id: selectedCat.id,
+          const payload = buildCreateForumPostPayload({
+            categoryId: selectedCat.id,
             title,
             body,
-            photo_ids: photoIds.length ? photoIds : undefined,
+            photoIds: photoIds.length ? photoIds : undefined,
           });
+
+          const backendPost = await api.createForumPost(payload);
 
           if (onBackendCreate) {
             onBackendCreate(backendPostToForumPost(backendPost));
