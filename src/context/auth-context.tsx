@@ -192,9 +192,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // fallback
     }
-    if (res.development_otp) {
-      setDevOtp(res.development_otp);
-    }
     closeAuthModal();
     return res.development_otp;
   };

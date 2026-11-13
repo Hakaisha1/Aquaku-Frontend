@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import {
   AlertCircle,
+  ArrowLeft,
   BadgeCheck,
   CheckCircle2,
   Clock,
   Phone,
   ReceiptText,
+  Send,
+  ShieldCheck,
   Sparkles,
   UserCheck,
   X,
@@ -34,17 +37,31 @@ export function AuthModals() {
     openTransactionsModal,
   } = useAuth();
 
-  // OTP form
+  // OTP form & on-demand state
   const [otpCode, setOtpCode] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [otpStep, setOtpStep] = useState<"idle" | "sent">("idle");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   useEffect(() => {
     if (devOtp) {
       setOtpCode(devOtp);
+      setOtpStep("sent");
     }
   }, [devOtp]);
+
+  // Reset step ketika modal ditutup jika tidak dalam masa tunggu cooldown
+  useEffect(() => {
+    if (!isPhoneModalOpen) {
+      setOtpError(null);
+      if (resendCooldown === 0 && !devOtp) {
+        setOtpStep("idle");
+        setOtpCode("");
+      }
+    }
+  }, [isPhoneModalOpen, resendCooldown, devOtp]);
 
   // Resend cooldown timer
   useEffect(() => {
@@ -54,6 +71,33 @@ export function AuthModals() {
     }, 1000);
     return () => clearInterval(interval);
   }, [resendCooldown]);
+
+  const handleRequestOtp = async () => {
+    if (!user) {
+      setOtpError("Silakan masuk terlebih dahulu untuk verifikasi akun.");
+      closePhoneVerifyModal();
+      openAuthModal("login");
+      return;
+    }
+    setOtpError(null);
+    setIsSendingOtp(true);
+    try {
+      const code = await resendOtp();
+      if (code) {
+        setOtpCode(code);
+      }
+      setResendCooldown(60);
+      setOtpStep("sent");
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setOtpError(err.message);
+      } else {
+        setOtpError("Gagal mengirimkan kode OTP. Silakan coba beberapa saat lagi.");
+      }
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +116,7 @@ export function AuthModals() {
     try {
       await verifyPhone(otpCode);
       setOtpCode("");
+      setOtpStep("idle");
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         if (err.status === 401) {
@@ -90,21 +135,29 @@ export function AuthModals() {
   };
 
   const handleResend = async () => {
-    if (resendCooldown > 0) return;
+    if (resendCooldown > 0 || isSendingOtp) return;
+    setOtpError(null);
+    setIsSendingOtp(true);
     try {
-      await resendOtp();
+      const code = await resendOtp();
+      if (code) {
+        setOtpCode(code);
+      }
       setResendCooldown(60);
-      setOtpError(null);
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         setOtpError(err.message);
+      } else {
+        setOtpError("Gagal mengirim ulang kode OTP.");
       }
+    } finally {
+      setIsSendingOtp(false);
     }
   };
 
   return (
     <>
-      {/* 1. Modal Verifikasi Nomor HP (OTP WhatsApp) */}
+      {/* 1. Modal Verifikasi Nomor HP (OTP WhatsApp On-Demand) */}
       {isPhoneModalOpen && (
         <div
           role="dialog"
@@ -124,7 +177,7 @@ export function AuthModals() {
               <X size={18} />
             </button>
 
-            <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-soft text-brand">
+            <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Phone size={22} />
             </div>
 
@@ -132,76 +185,171 @@ export function AuthModals() {
               Verifikasi Nomor WhatsApp
             </h2>
             <p className="mt-1.5 text-xs leading-5 text-muted">
-              Masukkan 6 digit kode OTP yang dikirimkan ke WhatsApp kamu untuk
-              mengaktifkan fitur pasang listing, transaksi, dan forum.
+              {otpStep === "idle"
+                ? "Verifikasi nomor WhatsApp kamu untuk mengaktifkan pasang listing marketplace, transaksi aman, dan interaksi komunitas forum."
+                : "Masukkan 6 digit kode OTP yang dikirimkan ke WhatsApp kamu untuk menyelesaikan verifikasi akun."}
             </p>
 
-            {devOtp && (
-              <div className="mt-3 flex items-center justify-between rounded-xl border border-brand/30 bg-soft p-3 text-xs text-brand">
-                <span className="font-semibold">
-                  Kode Uji: <strong className="font-mono text-sm">{devOtp}</strong>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setOtpCode(devOtp)}
-                  className="rounded-lg bg-brand px-2.5 py-1 text-[11px] font-bold text-on-brand"
-                >
-                  Pakai kode ini
-                </button>
+            {/* Step 1: Idle (Belum dikirim, User klik untuk meminta OTP) */}
+            {otpStep === "idle" ? (
+              <div className="mt-4 space-y-4">
+                <div className="rounded-xl border border-border bg-soft/60 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-9 items-center justify-center rounded-xl bg-surface text-brand shadow-xs">
+                        <Phone size={17} />
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-medium text-muted">WhatsApp Terdaftar</p>
+                        <p className="font-mono text-sm font-bold text-foreground">
+                          {user?.phone_number || user?.email || "Akun Terdaftar"}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                      Belum Verifikasi
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-border/80 bg-surface/50 p-3.5 text-xs text-muted space-y-2">
+                  <div className="flex items-start gap-2">
+                    <ShieldCheck size={16} className="mt-0.5 shrink-0 text-brand" />
+                    <span>
+                      Kode OTP <strong>hanya akan dikirim setelah kamu menekan tombol verifikasi</strong> di bawah.
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                    <span>
+                      Nomor WhatsApp digunakan untuk konfirmasi transaksi pembeli dan penjual terpercaya.
+                    </span>
+                  </div>
+                </div>
+
+                {otpError && (
+                  <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400">
+                    <AlertCircle size={16} className="shrink-0" />
+                    <span>{otpError}</span>
+                  </div>
+                )}
+
+                <div className="space-y-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleRequestOtp}
+                    disabled={isSendingOtp}
+                    className="button-primary w-full py-2.5 flex items-center justify-center gap-2 text-xs font-bold"
+                  >
+                    <Send size={15} />
+                    {isSendingOtp ? "Mengirim Kode ke WhatsApp…" : "Kirim Kode OTP WhatsApp"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={closePhoneVerifyModal}
+                    className="w-full rounded-xl py-2 text-center text-xs font-semibold text-muted hover:text-foreground transition-colors"
+                  >
+                    Nanti Saja
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Step 2: Form Masukkan OTP */
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 size={16} className="shrink-0" />
+                  <span>
+                    Kode OTP 6 digit telah dikirimkan ke WhatsApp{" "}
+                    <strong>{user?.phone_number || "nomor terdaftar kamu"}</strong>.
+                  </span>
+                </div>
+
+                {devOtp && (
+                  <div className="flex items-center justify-between rounded-xl border border-brand/30 bg-soft p-3 text-xs text-brand">
+                    <span className="font-semibold">
+                      Kode Uji: <strong className="font-mono text-sm">{devOtp}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setOtpCode(devOtp)}
+                      className="rounded-lg bg-brand px-2.5 py-1 text-[11px] font-bold text-on-brand hover:opacity-90"
+                    >
+                      Pakai kode ini
+                    </button>
+                  </div>
+                )}
+
+                <form onSubmit={handleOtpSubmit} className="space-y-4">
+                  {otpError && (
+                    <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400">
+                      <AlertCircle size={16} className="shrink-0" />
+                      <span>{otpError}</span>
+                    </div>
+                  )}
+
+                  <div>
+                    <label htmlFor="otp-input" className="sr-only">
+                      Kode OTP 6 Digit
+                    </label>
+                    <input
+                      id="otp-input"
+                      type="text"
+                      maxLength={6}
+                      pattern="[0-9]{6}"
+                      inputMode="numeric"
+                      required
+                      autoFocus
+                      placeholder="6 Digit OTP"
+                      value={otpCode}
+                      onChange={(e) =>
+                        setOtpCode(e.target.value.replace(/\D/g, ""))
+                      }
+                      className="field text-center font-mono text-xl tracking-[0.3em]"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={otpLoading || otpCode.length !== 6}
+                    className="button-primary w-full"
+                  >
+                    <UserCheck size={16} />
+                    {otpLoading ? "Memverifikasi…" : "Verifikasi Sekarang"}
+                  </button>
+
+                  <div className="flex items-center justify-between text-xs text-muted pt-1">
+                    <span>Tidak menerima kode?</span>
+                    <button
+                      type="button"
+                      onClick={handleResend}
+                      disabled={resendCooldown > 0 || isSendingOtp}
+                      className="font-bold text-brand hover:underline disabled:opacity-50"
+                    >
+                      {resendCooldown > 0
+                        ? `Kirim ulang (${resendCooldown}s)`
+                        : isSendingOtp
+                        ? "Mengirim…"
+                        : "Kirim Ulang OTP"}
+                    </button>
+                  </div>
+
+                  <div className="border-t border-border pt-3 text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpError(null);
+                        setOtpStep("idle");
+                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-foreground transition-colors"
+                    >
+                      <ArrowLeft size={13} />
+                      Kembali ke info nomor
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
-
-            <form onSubmit={handleOtpSubmit} className="mt-4 space-y-4">
-              {otpError && (
-                <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400">
-                  <AlertCircle size={16} className="shrink-0" />
-                  <span>{otpError}</span>
-                </div>
-              )}
-
-              <div>
-                <label htmlFor="otp-input" className="sr-only">
-                  Kode OTP 6 Digit
-                </label>
-                <input
-                  id="otp-input"
-                  type="text"
-                  maxLength={6}
-                  pattern="[0-9]{6}"
-                  inputMode="numeric"
-                  required
-                  placeholder="6 Digit OTP"
-                  value={otpCode}
-                  onChange={(e) =>
-                    setOtpCode(e.target.value.replace(/\D/g, ""))
-                  }
-                  className="field text-center font-mono text-xl tracking-[0.3em]"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={otpLoading || otpCode.length !== 6}
-                className="button-primary w-full"
-              >
-                <UserCheck size={16} />
-                {otpLoading ? "Memverifikasi…" : "Verifikasi Sekarang"}
-              </button>
-
-              <div className="flex items-center justify-between text-xs text-muted">
-                <span>Tidak menerima kode?</span>
-                <button
-                  type="button"
-                  onClick={handleResend}
-                  disabled={resendCooldown > 0}
-                  className="font-bold text-brand hover:underline disabled:opacity-50"
-                >
-                  {resendCooldown > 0
-                    ? `Kirim ulang (${resendCooldown}s)`
-                    : "Kirim Ulang OTP"}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
