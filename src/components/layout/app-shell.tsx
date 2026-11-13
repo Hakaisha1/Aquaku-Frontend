@@ -89,9 +89,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="flex items-center gap-1.5">
               <MapPin size={12} aria-hidden="true" />
               Semarang & sekitarnya
-              <span className="ml-2 hidden rounded bg-soft px-1.5 py-0.5 text-brand sm:inline">
-                Staging Aktif
-              </span>
             </span>
           </div>
         </div>
@@ -168,7 +165,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="mt-8 px-3.5 text-[10px] leading-5 text-muted">
             <p>Aquaku · Tumbuh bersama komunitas.</p>
-            <p>Frontend demo · Semarang</p>
+            <p>Komunitas Aquascape Semarang</p>
           </div>
         </aside>
 
@@ -181,7 +178,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <p>© Aquaku. Dari sesama hobiis, untuk sesama hobiis.</p>
               <p className="flex items-center gap-1.5">
                 <ShieldCheck size={13} aria-hidden="true" />
-                Marketplace Aquascape Semarang · Terhubung API Backend
+                Marketplace & Forum Aquascape Semarang
               </p>
             </div>
           </footer>

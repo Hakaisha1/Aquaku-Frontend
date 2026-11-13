@@ -6,7 +6,7 @@ import { forumPosts } from "@/lib/forum-data";
 export const metadata: Metadata = {
   title: "Forum aquascape Semarang | Aquaku",
   description:
-    "Cerita tank, perawatan tanaman, dan tanya jawab aquascape bersama komunitas Semarang. Forum demo Aquaku tanpa voting.",
+    "Cerita tank, perawatan tanaman, dan tanya jawab aquascape bersama komunitas Semarang.",
 };
 
 export default function ForumPage() {

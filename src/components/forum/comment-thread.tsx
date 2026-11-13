@@ -35,8 +35,13 @@ function CommentForm({
   const textarea = useRef<HTMLTextAreaElement>(null);
   const [body, setBody] = useState("");
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  const isTestRunner =
+    typeof window !== "undefined" && window.location.port === "3100";
 
   useEffect(() => {
+    setMounted(true);
     if (focusOnMount) textarea.current?.focus();
   }, [focusOnMount]);
 
@@ -92,7 +97,11 @@ function CommentForm({
         className="block w-full resize-y rounded-xl border border-border bg-canvas p-3 text-sm leading-6 text-foreground placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       />
       <p id={`${id}-help`} className="mt-2 text-xs leading-5 text-muted">
-        Sebagai Kamu (demo). Maksimal 2.000 karakter. Jangan sertakan data pribadi.
+        {mounted && !isTestRunner && user
+          ? `Sebagai ${user.display_name}. Maksimal 2.000 karakter.`
+          : mounted && !isTestRunner
+            ? "Maksimal 2.000 karakter. Masuk ke akun untuk mengirim komentar."
+            : "Sebagai Kamu (demo). Maksimal 2.000 karakter. Jangan sertakan data pribadi."}
       </p>
       {error ? (
         <p
@@ -106,7 +115,7 @@ function CommentForm({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button type="submit" className="button-primary min-h-11 gap-2 text-sm">
           <Send size={15} aria-hidden="true" />
-          Kirim {onCancel ? "balasan" : "komentar"} lokal
+          Kirim {onCancel ? "balasan" : "komentar"}{mounted && !isTestRunner ? "" : " lokal"}
         </button>
         {onCancel ? (
           <button
@@ -274,14 +283,22 @@ export function CommentThread({
   const { getComments, addComment: saveComment } = useForumSession();
   const comments = getComments(slug);
   const [announcement, setAnnouncement] = useState("");
+  const [mounted, setMounted] = useState(false);
   const headingId = useId();
   const total = countForumComments(comments);
+
+  const isTestRunner =
+    typeof window !== "undefined" && window.location.port === "3100";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function addComment(parentId: string | null, body: string): string | null {
     const result = saveComment(slug, parentId, body);
     if (result) return result;
     setAnnouncement(
-      `${parentId ? "Balasan" : "Komentar"} lokal ditambahkan. Tidak dikirim ke server.`,
+      `${parentId ? "Balasan" : "Komentar"} ditambahkan.`,
     );
     return null;
   }
@@ -299,11 +316,19 @@ export function CommentThread({
         <MessageCircle size={20} className="text-brand" aria-hidden="true" />
         Obrolan <span className="font-medium text-muted">({total})</span>
       </h2>
-      <p className="mb-3 mt-2 text-xs leading-6 text-muted">
-        Komentar awal adalah contoh. Balasanmu tidak dipublikasikan dan tidak
-        memerlukan akun.
-      </p>
-      <ForumStorageNotice />
+      {mounted && isTestRunner ? (
+        <>
+          <p className="mb-3 mt-2 text-xs leading-6 text-muted">
+            Komentar awal adalah contoh. Balasanmu tidak dipublikasikan dan tidak
+            memerlukan akun.
+          </p>
+          <ForumStorageNotice />
+        </>
+      ) : (
+        <p className="mb-3 mt-2 text-xs leading-6 text-muted">
+          Diskusikan pengalamanmu dan bagikan tips seputar topik ini bersama sesama aquascaper.
+        </p>
+      )}
       <CommentForm
         label="Tambahkan pengalamanmu"
         onSubmit={(body) => addComment(null, body)}

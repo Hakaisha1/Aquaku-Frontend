@@ -10,7 +10,7 @@ export default function NotFound() {
       </p>
       <h1 className="page-title">Sepertinya salah belok.</h1>
       <p className="mt-3 max-w-sm text-sm leading-7 text-muted">
-        Barang atau diskusi yang kamu cari belum ada di demo ini. Masih banyak
+        Barang atau diskusi yang kamu cari belum tersedia di Aquaku. Masih banyak
         yang bisa dijelajahi.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">

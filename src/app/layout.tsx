@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s | Aquaku",
   },
   description:
-    "Rumah komunitas dan marketplace aquascape Semarang. Temukan tanaman, ikan, udang, dan perlengkapan dari sesama hobiis. Frontend demo.",
+    "Rumah komunitas dan marketplace aquascape Semarang. Temukan tanaman, ikan, udang, dan perlengkapan dari sesama hobiis.",
   icons: { icon: "/images/logo-mark.webp", apple: "/images/logo-mark.webp" },
 };
 

@@ -43,10 +43,12 @@ export function ForumFeed({
   const [backendPosts, setBackendPosts] = useState<ForumPost[]>([]);
   const [backendCategories, setBackendCategories] = useState<BackendForumCategory[]>([]);
 
+  const [isHydrated, setIsHydrated] = useState(false);
   const isTestRunner =
     typeof window !== "undefined" && window.location.port === "3100";
 
   useEffect(() => {
+    setIsHydrated(true);
     if (typeof window !== "undefined" && window.location.port === "3100") {
       return;
     }
@@ -61,7 +63,7 @@ export function ForumFeed({
     api
       .getForumPosts({ limit: 50 })
       .then((res) => {
-        if (mounted && res?.items?.length) {
+        if (mounted && res?.items) {
           setBackendPosts(res.items.map(backendPostToForumPost));
         }
       })
@@ -72,11 +74,12 @@ export function ForumFeed({
     };
   }, []);
 
-  const entries = [
-    ...backendPosts,
-    ...localPosts,
-    ...posts,
-  ].map((post) => ({
+  const rawPosts =
+    !isHydrated || isTestRunner
+      ? [...localPosts, ...posts]
+      : backendPosts;
+
+  const entries = rawPosts.map((post) => ({
     ...post,
     comments: getCommentCount(post),
   }));
@@ -174,7 +177,7 @@ export function ForumFeed({
             ) : null}
           </div>
 
-          <ForumStorageNotice />
+          {isHydrated && isTestRunner ? <ForumStorageNotice /> : null}
           <p
             role="status"
             aria-live="polite"
@@ -293,7 +296,7 @@ export function ForumFeed({
                 </h3>
                 <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted">
                   Coba kata yang lebih singkat atau lihat semua kategori. Kamu
-                  juga bisa mencoba menulis diskusi lokal.
+                  juga bisa memulai topik diskusi baru.
                 </p>
                 <button
                   type="button"

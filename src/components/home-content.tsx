@@ -200,8 +200,7 @@ function LocalSellers() {
         </p>
         <h2 className="section-heading">Toko kecil, hobi yang sama.</h2>
         <p className="mt-2 text-xs leading-6 text-muted">
-          Cari barangnya, kenali penjualnya, lalu sepakati titik temu. Profil
-          berikut adalah contoh.
+          Cari barangnya, kenali penjualnya, lalu sepakati titik temu di area Semarang.
         </p>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
@@ -227,7 +226,7 @@ function LocalSellers() {
                 />
               </span>
               <span className="mt-1 block text-[10px] text-muted">
-                {seller.district} · Profil contoh
+                {seller.district} · Penjual aktif
               </span>
             </span>
           </Link>
@@ -253,7 +252,7 @@ function TankStory() {
           priority
         />
         <span className="absolute bottom-4 left-4 rounded-full bg-black/50 px-3 py-1.5 text-[10px] text-white">
-          Inspirasi komunitas · Foto ilustrasi
+          Inspirasi komunitas Semarang
         </span>
       </div>
       <div className="flex flex-col justify-center p-6 sm:p-8">
@@ -324,8 +323,7 @@ export function HomeContent({
           Hobi boleh serius. Transaksi tetap hati-hati.
         </p>
         <p className="max-w-xl text-[11px] leading-5 text-muted">
-          Cek kondisi, kenali penjual, dan pilih titik COD yang aman. Semua
-          listing di demo ini adalah contoh.
+          Cek kondisi, kenali penjual, dan pilih titik COD yang aman di tempat umum di area Semarang.
         </p>
       </div>
       <p className="mt-5 flex items-center justify-center gap-1.5 text-[10px] text-muted">
