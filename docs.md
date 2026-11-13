@@ -58,8 +58,40 @@ Sebagian besar response dibungkus dengan properti `data`. Timestamp dikirim seba
 | `POST /marketplace/admin/sales/{saleId}/correct-buyer` | Admin | Koreksi pembeli transaksi terkonfirmasi |
 | `GET /marketplace/admin/sales/{saleId}/corrections` | Admin | Audit koreksi pembeli |
 | `GET /users/{userId}` | Publik | Profil dan ringkasan rating penjual |
+| `GET /forum/categories` | Publik | Daftar kategori forum aktif |
+| `GET /forum/posts` | Publik | Feed posting dengan pagination/filter kategori |
+| `GET /forum/posts/{postId}` | Publik | Detail posting aktif dan foto terverifikasi |
+| `POST /forum/posts` | Login, HP terverifikasi | Buat posting; lampirkan asset foto terverifikasi opsional |
+| `PATCH /forum/posts/{postId}` | Penulis, HP terverifikasi | Ubah posting sendiri |
+| `DELETE /forum/posts/{postId}` | Penulis | Hapus posting sendiri |
+| `GET, POST /forum/posts/{postId}/comments` | Baca publik; tulis perlu HP terverifikasi | Baca/tambah komentar dengan pagination |
+| `DELETE /forum/posts/{postId}/comments/{commentId}` | Penulis komentar | Hapus komentar sendiri |
+| `POST /forum/posts/{postId}/reports` | Login, HP terverifikasi | Laporkan posting |
+| `POST /forum/media/upload-signatures`, `/forum/media/confirm-upload` | Login, HP terverifikasi | Signed upload dan validasi foto Cloudinary |
+| `POST /forum/admin/categories` | Admin | Tambah kategori forum |
+| `PATCH /forum/admin/categories/{categoryId}` | Admin | Aktif/nonaktifkan kategori forum |
+| `/forum/admin/posts`, `/forum/admin/posts/{postId}/moderation` | Admin | Antrean posting ter-moderasi dan riwayat hide/restore |
+| `GET /forum/admin/reports` | Admin | Antrean laporan forum |
+| `POST /forum/admin/reports/{reportId}/review` | Admin | Selesaikan atau dismiss laporan |
 
 Prefix `/api/v1` ditambahkan pada semua path di tabel. Endpoint membership, toko, media, kuota, dan hak akun tercantum di README serta OpenAPI.
+
+Konten forum disimpan di MongoDB; `authorId` merujuk UUID akun PostgreSQL, dan profil penulis dibaca dari PostgreSQL. Membaca forum tidak memerlukan login; membuat posting, komentar, dan laporan memerlukan login serta HP terverifikasi. Kategori awal dikelola admin melalui `POST /forum/admin/categories`. Backend memerlukan `MONGODB_URI` selain `DATABASE_URL`; tambahkan koneksi MongoDB terpisah pada environment Railway staging dan production.
+
+#### Upload foto untuk frontend
+
+Gunakan endpoint signature/konfirmasi berdasarkan tujuan upload:
+
+| Tujuan | Signature | Confirm | Folder Cloudinary |
+| --- | --- | --- | --- |
+| Foto listing | `POST /api/v1/marketplace/media/upload-signatures` | `POST /api/v1/marketplace/media/confirm-upload` | `aquaku/listings` |
+| Foto posting forum | `POST /api/v1/forum/media/upload-signatures` | `POST /api/v1/forum/media/confirm-upload` | `aquaku/forum` |
+
+Kedua endpoint signature dan confirm memerlukan Bearer token akun dengan HP terverifikasi. Setelah meminta signature, frontend harus mengirim `file` dan semua field dari `data` response yang signed ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`: `api_key`, `timestamp`, `public_id`, `asset_folder`, `allowed_formats`, `upload_preset`, `overwrite`, dan `signature`. Pakai nilai apa adanya; jangan mengganti `asset_folder` menjadi `folder`, jangan menyusun signature sendiri, dan jangan mengirim `CLOUDINARY_API_SECRET` ke browser. `cloud_name` dipakai untuk membentuk URL upload. Untuk browser `FormData`, jangan set `Content-Type` manual.
+
+Setelah upload Cloudinary berhasil, panggil endpoint confirm pasangannya dengan Bearer token dan body `{"asset_id":"<asset_id dari signature>"}`. Kirim `data.id` dari response confirm sebagai `photo_ids` saat membuat listing atau posting; jangan kirim Cloudinary `public_id` atau URL. Implementasi JavaScript dan pemeriksaan error lebih lengkap ada di [`front-development.md`](front-development.md).
+
+Cloudinary `403` dengan pesan permission `create` berarti API key backend belum mendapat role Contributor pada folder tujuan (`aquaku/listings` atau `aquaku/forum`); ini konfigurasi Cloudinary per-folder, bukan tindakan frontend. Untuk QA Windows, `scripts/test-marketplace-cloudinary-upload.bat` menguji upload marketplace dan `scripts/test-cloudinary-upload.bat` menguji forum. Grant role marketplace staging dapat diperiksa/diberikan dengan `scripts/grant-cloudinary-listings-folder-role.bat`; jalankan hanya dengan kredensial Admin API yang berwenang.
 
 ## 3. Alur transaksi dan rating
 
@@ -206,7 +238,7 @@ Gunakan `RESTORE` untuk memulihkan listing. Listing tersembunyi tidak muncul di 
 - `404 Not Found`: resource tidak ditemukan atau listing tidak tersedia secara publik.
 - `409 Conflict`: transisi status tidak diizinkan, transaksi/laporan duplikat, OTP.ID menyatakan transaksi OTP sudah tidak dapat digunakan, atau rating tidak dapat diubah.
 - `429 Too Many Requests`: cooldown/batas OTP atau batas request tercapai; tunggu sebelum mencoba lagi.
-- `503 Service Unavailable`: provider OTP/layanan lain tidak tersedia atau konfigurasi server belum lengkap.
+- `503 Service Unavailable`: provider OTP/layanan lain tidak tersedia, MongoDB/PostgreSQL tidak siap, atau konfigurasi server belum lengkap.
 
 Jangan mengasumsikan semua error dapat dicoba ulang. Untuk `409`, refresh detail/riwayat terlebih dahulu dan tampilkan status terbaru. Bentuk response error mengikuti format error API yang digunakan backend.
 

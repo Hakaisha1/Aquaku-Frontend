@@ -180,9 +180,17 @@ export function ForumComposer({
           if (photoFile) {
             try {
               const uploaded = await api.uploadForumPhoto(photoFile);
-              if (uploaded?.id) photoIds.push(uploaded.id);
-            } catch {
-              // Photo upload optional on staging QA
+              const confirmedId =
+                uploaded?.id ??
+                (uploaded as { data?: { id?: string } })?.data?.id;
+              if (confirmedId) photoIds.push(confirmedId);
+            } catch (uploadErr) {
+              // Foto opsional pada staging/QA internal; kegagalan Cloudinary 403 atau backend 503
+              // ditangani secara graceful tanpa membatalkan proses publikasi diskusi.
+              console.warn(
+                "Upload foto forum dilewati karena kendala Cloudinary atau backend:",
+                uploadErr,
+              );
             }
           }
 
@@ -202,9 +210,14 @@ export function ForumComposer({
         } catch (err: unknown) {
           if (err instanceof ApiError) {
             setError(err.message);
-            setSubmitting(false);
             return;
           }
+          if (err instanceof Error) {
+            setError(err.message);
+            return;
+          }
+          setError("Gagal mempublikasikan diskusi ke forum.");
+          return;
         } finally {
           setSubmitting(false);
         }

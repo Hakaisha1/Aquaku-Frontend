@@ -13,6 +13,8 @@ import type {
   Listing,
   ListingCondition,
   ListingPage,
+  MarketplaceMediaAsset,
+  MarketplaceUploadSignature,
   MembershipPlan,
   PublicProfile,
   Quota,
@@ -624,6 +626,80 @@ export const api = {
     });
   },
 
+  // Marketplace Media (Cloudinary)
+  async getMarketplaceUploadSignature(): Promise<MarketplaceUploadSignature> {
+    return apiRequest<MarketplaceUploadSignature>(
+      "/marketplace/media/upload-signatures",
+      {
+        method: "POST",
+      },
+    );
+  },
+
+  async confirmMarketplaceUpload(
+    asset_id: string,
+  ): Promise<MarketplaceMediaAsset> {
+    return apiRequest<MarketplaceMediaAsset>(
+      "/marketplace/media/confirm-upload",
+      {
+        method: "POST",
+        body: JSON.stringify({ asset_id }),
+      },
+    );
+  },
+
+  async uploadListingPhoto(file: File): Promise<MarketplaceMediaAsset> {
+    const sig = await this.getMarketplaceUploadSignature();
+    if (!sig.asset_folder || sig.asset_folder !== "aquaku/listings") {
+      throw new ApiError(
+        400,
+        "INVALID_ASSET_FOLDER",
+        "Folder aset tidak sesuai. Pastikan backend staging sudah diperbarui.",
+      );
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", sig.api_key);
+    formData.append("timestamp", String(sig.timestamp));
+    formData.append("public_id", sig.public_id);
+    formData.append("asset_folder", sig.asset_folder);
+    formData.append("allowed_formats", sig.allowed_formats);
+    formData.append("upload_preset", sig.upload_preset);
+    formData.append("overwrite", String(sig.overwrite));
+    formData.append("signature", sig.signature);
+
+    const uploadRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    if (!uploadRes.ok) {
+      let message = "Gagal mengunggah foto ke Cloudinary.";
+      try {
+        const errJson = await uploadRes.json();
+        if (errJson?.error?.message) {
+          message = `Cloudinary: ${errJson.error.message}`;
+        }
+      } catch {
+        // ignore
+      }
+      throw new ApiError(uploadRes.status, "UPLOAD_FAILED", message);
+    }
+
+    return this.confirmMarketplaceUpload(sig.asset_id);
+  },
+
+  async deleteMarketplaceMedia(assetId: string): Promise<void> {
+    return apiRequest<void>(`/marketplace/media/${assetId}`, {
+      method: "DELETE",
+    });
+  },
+
+  // Forum Media (Cloudinary)
   async getForumUploadSignature(): Promise<ForumUploadSignature> {
     return apiRequest<ForumUploadSignature>("/forum/media/upload-signatures", {
       method: "POST",
@@ -639,15 +715,24 @@ export const api = {
 
   async uploadForumPhoto(file: File): Promise<ForumMediaAsset> {
     const sig = await this.getForumUploadSignature();
+    if (!sig.asset_folder || sig.asset_folder !== "aquaku/forum") {
+      throw new ApiError(
+        400,
+        "INVALID_ASSET_FOLDER",
+        "Folder aset tidak sesuai. Pastikan backend staging sudah diperbarui.",
+      );
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("api_key", sig.api_key);
     formData.append("timestamp", String(sig.timestamp));
-    formData.append("signature", sig.signature);
     formData.append("public_id", sig.public_id);
-    formData.append("folder", sig.folder);
+    formData.append("asset_folder", sig.asset_folder);
+    formData.append("allowed_formats", sig.allowed_formats);
     formData.append("upload_preset", sig.upload_preset);
-    formData.append("overwrite", sig.overwrite);
+    formData.append("overwrite", String(sig.overwrite));
+    formData.append("signature", sig.signature);
 
     const uploadRes = await fetch(
       `https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`,
@@ -658,7 +743,16 @@ export const api = {
     );
 
     if (!uploadRes.ok) {
-      throw new ApiError(uploadRes.status, "UPLOAD_FAILED", "Gagal mengunggah foto ke Cloudinary.");
+      let message = "Gagal mengunggah foto ke Cloudinary.";
+      try {
+        const errJson = await uploadRes.json();
+        if (errJson?.error?.message) {
+          message = `Cloudinary: ${errJson.error.message}`;
+        }
+      } catch {
+        // ignore
+      }
+      throw new ApiError(uploadRes.status, "UPLOAD_FAILED", message);
     }
 
     return this.confirmForumUpload(sig.asset_id);
