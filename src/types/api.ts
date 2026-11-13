@@ -5,6 +5,7 @@ export type UserProfile = {
   id: string;
   email: string;
   display_name: string;
+  phone_number?: string | null;
   avatar_url: string | null;
   phone_verified: boolean;
   tier: UserTier;
