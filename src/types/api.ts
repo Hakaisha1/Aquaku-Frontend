@@ -334,8 +334,10 @@ export type MarketplaceMediaAsset = {
 };
 
 export type ApiErrorResponse = {
-  error: {
+  error?: {
     code: string;
     message: string;
+    details?: unknown;
   };
+  message?: string;
 };

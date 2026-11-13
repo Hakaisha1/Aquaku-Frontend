@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   AlertCircle,
   CheckCircle2,
@@ -11,7 +12,7 @@ import {
   ShieldAlert,
   Sparkles,
   Tag,
-  Upload,
+  UploadCloud,
   X,
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
@@ -22,9 +23,17 @@ import type {
   Region,
 } from "@/types/api";
 
+type UploadedPhotoItem = {
+  id: string; // ID asset dari backend PostgreSQL (UUID)
+  url: string; // URL preview gambar
+  name: string;
+};
+
 export function SellModal() {
   const { isSellModalOpen, closeSellModal, user, quota, refreshQuota } =
     useAuth();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
@@ -45,34 +54,37 @@ export function SellModal() {
   const [description, setDescription] = useState("");
   const [useCooldownPass, setUseCooldownPass] = useState(false);
 
-  // Photos: For staging where Cloudinary might be 503, keep simulated asset id or signed ids
-  const [uploadedPhotoIds, setUploadedPhotoIds] = useState<string[]>([]);
+  // Photos state
+  const [photos, setPhotos] = useState<UploadedPhotoItem[]>([]);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Load taxonomy and regions on mount or open
   useEffect(() => {
     if (!isSellModalOpen) return;
     setSuccess(false);
     setError(null);
+    setPhotoError(null);
     setLoadingMeta(true);
 
     Promise.all([api.getTaxonomy(), api.getRegions()])
       .then(([tax, regs]) => {
-        setCategories(tax.categories);
-        if (tax.categories.length > 0 && !categoryId) {
-          setCategoryId(tax.categories[0].id);
+        setCategories(tax.categories || []);
+        if (tax.categories?.length > 0) {
+          setCategoryId((prev) =>
+            tax.categories.some((c) => c.id === prev) ? prev : tax.categories[0].id,
+          );
         }
-        setRegions(regs);
+        setRegions(regs || []);
         const uniqueDistricts = Array.from(
-          new Set(regs.map((r) => r.district)),
+          new Set((regs || []).map((r) => r.district)),
         ).sort();
         setDistricts(uniqueDistricts);
-        if (uniqueDistricts.length > 0 && !selectedDistrict) {
-          setSelectedDistrict(uniqueDistricts[0]);
-          const firstInDistrict = regs.find(
-            (r) => r.district === uniqueDistricts[0],
+        if (uniqueDistricts.length > 0) {
+          setSelectedDistrict((prev) =>
+            uniqueDistricts.includes(prev) ? prev : uniqueDistricts[0],
           );
-          if (firstInDistrict) setRegionCode(firstInDistrict.code);
         }
       })
       .catch(() => {
@@ -83,12 +95,29 @@ export function SellModal() {
           { id: "demo-hardscape", slug: "hardscape", name: "Hardscape" },
           { id: "demo-peralatan", slug: "equipment", name: "Peralatan" },
         ]);
-        setCategoryId("demo-tanaman");
       })
       .finally(() => setLoadingMeta(false));
   }, [isSellModalOpen]);
 
-  // When selected district changes, update regionCode to first kelurahan in that district
+  // Sync regionCode whenever selectedDistrict or regions change
+  useEffect(() => {
+    if (!selectedDistrict || regions.length === 0) return;
+    const kelurahans = regions.filter((r) => r.district === selectedDistrict);
+    if (kelurahans.length > 0) {
+      setRegionCode((prev) =>
+        kelurahans.some((k) => k.code === prev) ? prev : kelurahans[0].code,
+      );
+    }
+  }, [selectedDistrict, regions]);
+
+  // Sync categoryId if categories are loaded and current categoryId is empty
+  useEffect(() => {
+    if (categories.length > 0 && !categoryId) {
+      setCategoryId(categories[0].id);
+    }
+  }, [categories, categoryId]);
+
+  // When selected district changes from select input
   const handleDistrictChange = (d: string) => {
     setSelectedDistrict(d);
     const match = regions.find((r) => r.district === d);
@@ -101,12 +130,76 @@ export function SellModal() {
   const isConditionRestricted =
     user?.tier === "personal" && (condition === "BNIB" || condition === "NEW");
 
-  // Min photo rule
+  // Min photo rule based on condition
   const minPhotos = condition === "BNIB" || condition === "NEW" ? 1 : 3;
+
+  // Handle file uploads (Dropzone or file input)
+  const handleFilesUpload = async (files: File[]) => {
+    setPhotoError(null);
+    if (files.length === 0) return;
+
+    if (photos.length + files.length > 8) {
+      setPhotoError(
+        `Maksimal 8 foto per listing. Kamu sudah memiliki ${photos.length} foto, hanya bisa menambah ${8 - photos.length} foto lagi.`,
+      );
+      return;
+    }
+
+    setUploadingPhotos(true);
+    try {
+      for (const file of files) {
+        // Check size: max 5 MB
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error(`Ukuran foto "${file.name}" melebihi batas 5 MB.`);
+        }
+        // Check MIME type: JPG, PNG, WebP
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+          throw new Error(
+            `Format file "${file.name}" tidak didukung. Gunakan file JPG, PNG, atau WebP.`,
+          );
+        }
+
+        const uploadedAsset = await api.uploadListingPhoto(file);
+        if (!uploadedAsset?.id) {
+          throw new Error(`Gagal memproses unggahan foto "${file.name}".`);
+        }
+
+        const previewUrl = uploadedAsset.url || URL.createObjectURL(file);
+        setPhotos((prev) => [
+          ...prev,
+          {
+            id: uploadedAsset.id,
+            url: previewUrl,
+            name: file.name,
+          },
+        ]);
+      }
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setPhotoError(err.message);
+      } else if (err instanceof Error) {
+        setPhotoError(err.message);
+      } else {
+        setPhotoError("Terjadi kesalahan saat mengunggah foto ke Cloudinary.");
+      }
+    } finally {
+      setUploadingPhotos(false);
+    }
+  };
+
+  const handleRemovePhoto = async (photoId: string) => {
+    setPhotos((prev) => prev.filter((p) => p.id !== photoId));
+    try {
+      await api.deleteMarketplaceMedia(photoId);
+    } catch {
+      // ignore deletion error on UI
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setPhotoError(null);
 
     if (isConditionRestricted) {
       setError(
@@ -122,33 +215,67 @@ export function SellModal() {
       return;
     }
 
-    const priceNum = parseInt(price.replace(/\D/g, ""), 10);
-    if (isNaN(priceNum) || priceNum < 1) {
-      setError("Masukkan harga yang valid dalam Rupiah.");
+    // 1. Validasi Kategori
+    if (!categoryId || categoryId.startsWith("demo-")) {
+      setError(
+        "Kategori tidak valid atau belum termuat dari server. Pastikan koneksi server aktif.",
+      );
       return;
     }
 
-    // Default dummy photo id if Cloudinary 503 is returned on staging internal QA
-    let photoIdsToSend = uploadedPhotoIds;
-    if (photoIdsToSend.length === 0) {
-      // Backend requires at least 1-3 photo IDs in UUID format
-      photoIdsToSend = [
-        "00000000-0000-0000-0000-000000000001",
-        "00000000-0000-0000-0000-000000000002",
-        "00000000-0000-0000-0000-000000000003",
-      ].slice(0, Math.max(minPhotos, 1));
+    // 2. Validasi Wilayah
+    if (!regionCode) {
+      setError(
+        "Pilih kecamatan dan kelurahan di Kota Semarang untuk lokasi barang.",
+      );
+      return;
     }
+
+    // 3. Validasi Judul
+    const cleanTitle = title.trim();
+    if (cleanTitle.length < 5 || cleanTitle.length > 120) {
+      setError("Judul listing harus antara 5 hingga 120 karakter.");
+      return;
+    }
+
+    // 4. Validasi Deskripsi
+    const cleanDesc = description.trim();
+    if (cleanDesc.length < 10 || cleanDesc.length > 5000) {
+      setError("Deskripsi listing minimal 10 karakter (maksimal 5.000 karakter).");
+      return;
+    }
+
+    // 5. Validasi Harga
+    const priceNum = parseInt(price.replace(/\D/g, ""), 10);
+    if (isNaN(priceNum) || priceNum < 1) {
+      setError("Masukkan harga yang valid dalam Rupiah (minimal Rp 1).");
+      return;
+    }
+    if (priceNum > 2147483647) {
+      setError("Harga melebihi batas maksimal yang diizinkan.");
+      return;
+    }
+
+    // 6. Validasi Foto
+    if (photos.length < minPhotos) {
+      setError(
+        `Foto barang belum memenuhi syarat. Kondisi ${condition} membutuhkan minimal ${minPhotos} foto aktual terunggah. Silakan unggah foto produk Anda terlebih dahulu.`,
+      );
+      return;
+    }
+
+    const photoIds = photos.map((p) => p.id);
 
     setSubmitting(true);
     try {
       await api.createListing({
         category_id: categoryId,
         region_code: regionCode,
-        title,
-        description,
+        title: cleanTitle,
+        description: cleanDesc,
         price: priceNum,
         condition,
-        photo_ids: photoIdsToSend,
+        photo_ids: photoIds,
       });
       setSuccess(true);
       await refreshQuota();
@@ -159,7 +286,7 @@ export function SellModal() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError("Gagal memasang listing. Periksa kembali data kamu.");
+        setError("Gagal memasang listing. Periksa kembali kelengkapan data kamu.");
       }
     } finally {
       setSubmitting(false);
@@ -295,19 +422,19 @@ export function SellModal() {
                   }
                   className="field"
                 >
-                  <option value="SECOND">Second / Bekas Pakai</option>
-                  <option value="LIKE_NEW">Like New / Seperti Baru</option>
+                  <option value="SECOND">Second / Bekas Pakai (Min. 3 Foto)</option>
+                  <option value="LIKE_NEW">Like New / Seperti Baru (Min. 3 Foto)</option>
                   <option
                     value="NEW"
                     disabled={user?.tier === "personal"}
                   >
-                    Baru / New {user?.tier === "personal" ? "(Khusus Toko/Juragan)" : ""}
+                    Baru / New (Min. 1 Foto) {user?.tier === "personal" ? "- Khusus Toko/Juragan" : ""}
                   </option>
                   <option
                     value="BNIB"
                     disabled={user?.tier === "personal"}
                   >
-                    BNIB (Box Tersegel) {user?.tier === "personal" ? "(Khusus Toko/Juragan)" : ""}
+                    BNIB Box Tersegel (Min. 1 Foto) {user?.tier === "personal" ? "- Khusus Toko/Juragan" : ""}
                   </option>
                 </select>
               </div>
@@ -415,26 +542,126 @@ export function SellModal() {
               />
             </div>
 
-            {/* Foto Information */}
-            <div className="rounded-xl border border-dashed border-border bg-canvas p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                <ImageIcon size={16} className="text-brand" />
-                <span>Foto Kondisi Aktual</span>
-              </div>
-              <p className="mt-1 text-[11px] leading-4 text-muted">
-                Kondisi {condition}: minimal {minPhotos} foto, maksimal 8 foto.
-                Pastikan foto asli tanpa filter berlebihan.
-              </p>
-              <div className="mt-3 flex items-center gap-2">
-                <span className="tag">
-                  {uploadedPhotoIds.length > 0
-                    ? `${uploadedPhotoIds.length} foto terpasang`
-                    : "Foto default uji terpasang"}
+            {/* Foto Barang (Dropbox / Dropzone Upload Interaktif) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="block text-xs font-semibold text-muted">
+                    Foto Kondisi Aktual Barang *
+                  </label>
+                  <p className="text-[11px] text-muted">
+                    Kondisi <strong>{condition}</strong>: minimal {minPhotos} foto, maksimal 8 foto (JPG, PNG, WebP maks 5 MB).
+                  </p>
+                </div>
+                <span
+                  className={`text-[11px] font-bold ${
+                    photos.length >= minPhotos
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-amber-600 dark:text-amber-400"
+                  }`}
+                >
+                  {photos.length} / 8 foto ({photos.length >= minPhotos ? "Siap dipasang" : `Kurang ${minPhotos - photos.length}`})
                 </span>
-                <span className="text-[10px] text-muted">
-                  (Upload terverifikasi backend)
-                </span>
               </div>
+
+              {/* Dropzone Area */}
+              {photos.length < 8 && (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    if (e.dataTransfer.files) {
+                      handleFilesUpload(Array.from(e.dataTransfer.files));
+                    }
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition-all ${
+                    isDragging
+                      ? "border-brand bg-brand/5 scale-[1.01]"
+                      : "border-border hover:border-brand/50 hover:bg-soft/50"
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        handleFilesUpload(Array.from(e.target.files));
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand transition-transform group-hover:scale-110">
+                    {uploadingPhotos ? (
+                      <Loader2 size={24} className="animate-spin" />
+                    ) : (
+                      <UploadCloud size={24} />
+                    )}
+                  </div>
+                  <p className="mt-2 text-xs font-bold text-foreground">
+                    {uploadingPhotos
+                      ? "Sedang memproses & mengunggah foto ke Cloudinary..."
+                      : "Tarik & lepas foto di sini, atau klik untuk memilih file"}
+                  </p>
+                  <p className="mt-1 text-[11px] text-muted">
+                    Format JPG, PNG, atau WebP (maksimal 5 MB per foto).
+                  </p>
+                </div>
+              )}
+
+              {photoError && (
+                <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400">
+                  <AlertCircle size={15} className="shrink-0" />
+                  <span>{photoError}</span>
+                </div>
+              )}
+
+              {/* Grid Pratinjau Foto */}
+              {photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+                  {photos.map((photo, idx) => (
+                    <div
+                      key={photo.id}
+                      className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-soft shadow-xs"
+                    >
+                      <Image
+                        src={photo.url}
+                        alt={`Foto produk ${idx + 1}`}
+                        fill
+                        className="object-cover transition-transform duration-200 group-hover:scale-105"
+                      />
+                      {idx === 0 && (
+                        <span className="absolute bottom-1.5 left-1.5 rounded-md bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-xs">
+                          Cover Utama
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemovePhoto(photo.id);
+                        }}
+                        className="absolute right-1.5 top-1.5 flex size-6 items-center justify-center rounded-full bg-black/75 text-white shadow-sm transition-transform hover:scale-110 hover:bg-red-600"
+                        title="Hapus foto"
+                        aria-label="Hapus foto"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Cooldown pass checkbox if applicable */}
@@ -454,7 +681,7 @@ export function SellModal() {
 
             <button
               type="submit"
-              disabled={submitting || loadingMeta || isConditionRestricted}
+              disabled={submitting || loadingMeta || isConditionRestricted || uploadingPhotos}
               className="button-primary w-full"
             >
               {submitting ? (

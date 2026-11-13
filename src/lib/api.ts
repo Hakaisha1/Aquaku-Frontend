@@ -72,12 +72,14 @@ export function subscribeAuth(listener: AuthListener): () => void {
 export class ApiError extends Error {
   status: number;
   code: string;
+  details?: unknown;
 
-  constructor(status: number, code: string, message: string) {
+  constructor(status: number, code: string, message: string, details?: unknown) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
+    this.details = details;
   }
 }
 
@@ -160,16 +162,38 @@ export async function apiRequest<T>(
   if (!res.ok) {
     let code = `HTTP_${res.status}`;
     let message = `Permintaan gagal dengan status ${res.status}`;
+    let details: unknown = undefined;
     try {
       const errorJson: ApiErrorResponse = await res.json();
       if (errorJson?.error) {
         code = errorJson.error.code || code;
         message = errorJson.error.message || message;
+        details = errorJson.error.details;
+        if (Array.isArray(details) && details.length > 0) {
+          const detailMsgs = details
+            .map((d: unknown) => {
+              if (typeof d === "string") return d;
+              if (typeof d === "object" && d !== null) {
+                const item = d as Record<string, unknown>;
+                const path = item.path ? `${item.path}: ` : item.field ? `${item.field}: ` : "";
+                return `${path}${item.message || JSON.stringify(item)}`;
+              }
+              return String(d);
+            })
+            .join("; ");
+          if (detailMsgs) {
+            message = `${message} (${detailMsgs})`;
+          }
+        } else if (typeof details === "string") {
+          message = `${message} (${details})`;
+        }
+      } else if (errorJson?.message) {
+        message = errorJson.message;
       }
     } catch {
       // response is not json
     }
-    throw new ApiError(res.status, code, message);
+    throw new ApiError(res.status, code, message, details);
   }
 
   if (res.status === 204) {
