@@ -77,6 +77,14 @@ export function ContactSeller({
             )}
             Salin pesan contoh
           </button>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(message)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="button-secondary mt-2 w-full inline-flex items-center justify-center gap-1.5 text-xs"
+          >
+            <MessageCircle size={15} /> Buka di WhatsApp
+          </a>
           <p role="status" className="mt-3 text-xs leading-6 text-muted">
             {status}
           </p>

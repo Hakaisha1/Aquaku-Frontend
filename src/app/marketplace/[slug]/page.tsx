@@ -173,7 +173,7 @@ export default async function ProductPage({
           </section>
           <ContactSeller product={product} />
           <p className="mt-2 text-center text-[10px] text-muted">
-            Demo · Chat WhatsApp sungguhan belum diaktifkan
+            Contoh listing · Hubungi penjual melalui WhatsApp
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <SaveProductButton

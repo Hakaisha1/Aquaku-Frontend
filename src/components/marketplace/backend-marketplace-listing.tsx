@@ -18,16 +18,51 @@ import {
 } from "lucide-react";
 import { Breadcrumbs } from "@/components/layout/app-shell";
 import { ProductGallery } from "@/components/marketplace/product-gallery";
-import {
-  ContactSeller,
-  ShareProduct,
-} from "@/components/marketplace/product-actions";
+import { ShareProduct } from "@/components/marketplace/product-actions";
 import { SaveProductButton } from "@/components/marketplace/saved-products";
 import { ProductCard } from "@/components/marketplace/product-card";
 import { ListingActions } from "@/components/marketplace/listing-actions";
 import { formatRupiah, products } from "@/lib/marketplace-data";
 import { api, ApiError } from "@/lib/api";
-import type { Listing } from "@/types/api";
+import type { Listing, ListingSeller } from "@/types/api";
+
+function buildSellerWhatsAppUrl(
+  seller?: ListingSeller | null,
+  productTitle: string = "produk",
+  sellerName: string = "penjual",
+): string {
+  const message = `Halo ${sellerName}, saya tertarik dengan listing "${productTitle}" di Aquaku. Apakah masih tersedia? Boleh info kondisi dan lokasi COD di Semarang?`;
+  const encodedText = encodeURIComponent(message);
+
+  const raw =
+    seller?.whatsapp_url ||
+    seller?.whatsapp_number ||
+    seller?.phone_number ||
+    "";
+
+  if (raw && raw.trim()) {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      try {
+        const url = new URL(trimmed);
+        url.searchParams.set("text", message);
+        return url.toString();
+      } catch {
+        // Fallback
+      }
+    }
+    if (trimmed.startsWith("wa.me/")) {
+      const base = trimmed.split("?")[0];
+      return `https://${base}?text=${encodedText}`;
+    }
+    const cleanNumber = trimmed.replace(/[^0-9]/g, "").replace(/^0/, "62");
+    if (cleanNumber.length >= 8) {
+      return `https://wa.me/${cleanNumber}?text=${encodedText}`;
+    }
+  }
+
+  return `https://wa.me/?text=${encodedText}`;
+}
 
 export function BackendMarketplaceListing({
   listingId,
@@ -274,13 +309,30 @@ export function BackendMarketplaceListing({
             </div>
           </section>
 
-          {/* Contact / Action Buttons */}
-          <ContactSeller
-            product={{
-              name: listing.title,
-              seller: sellerName,
-            }}
-          />
+          {/* Direct WhatsApp Contact Button */}
+          {(() => {
+            const waUrl = buildSellerWhatsAppUrl(
+              listing.seller,
+              listing.title,
+              sellerName,
+            );
+            return (
+              <div>
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="button-primary w-full inline-flex items-center justify-center gap-2 py-3 text-sm font-bold shadow-sm"
+                >
+                  <MessageCircle size={18} aria-hidden="true" />
+                  Chat Penjual di WhatsApp
+                </a>
+                <p className="mt-1.5 text-center text-[10px] text-muted">
+                  Akan membuka obrolan WhatsApp ke {sellerName} dengan pesan pertanyaan terformat
+                </p>
+              </div>
+            );
+          })()}
 
           <div className="mt-3 flex flex-wrap gap-2">
             <SaveProductButton

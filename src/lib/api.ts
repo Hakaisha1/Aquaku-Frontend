@@ -524,14 +524,22 @@ export const api = {
 
   // Reports
   async createReport(body: {
-    target_type: "listing" | "user";
+    target_type: "LISTING" | "USER" | "listing" | "user";
     target_id: string;
     reason: ReportReason;
     details?: string;
   }): Promise<Report> {
+    const payload = {
+      target_type: (body.target_type.toUpperCase() as "LISTING" | "USER"),
+      target_id: body.target_id,
+      reason: body.reason,
+      ...(body.details && body.details.trim()
+        ? { details: body.details.trim().slice(0, 1000) }
+        : {}),
+    };
     return apiRequest<Report>("/marketplace/reports", {
       method: "POST",
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
   },
 

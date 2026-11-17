@@ -13,7 +13,7 @@ export function ReportModal({
   isOpen,
   onClose,
 }: {
-  targetType: "listing" | "user";
+  targetType: "listing" | "user" | "LISTING" | "USER";
   targetId: string;
   targetName: string;
   isOpen: boolean;
@@ -41,11 +41,26 @@ export function ReportModal({
       return;
     }
 
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        targetId,
+      );
+
+    if (!isUuid) {
+      // Mock listing fallback in prototype
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        onClose();
+      }, 1500);
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
       await api.createReport({
-        target_type: targetType,
+        target_type: (targetType.toUpperCase() as "LISTING" | "USER"),
         target_id: targetId,
         reason,
         details: details.trim() || undefined,
@@ -58,9 +73,20 @@ export function ReportModal({
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         if (err.status === 409) {
-          setError("Kamu sudah memiliki laporan aktif yang sedang ditinjau untuk item ini.");
+          setError(
+            "Kamu sudah memiliki laporan aktif yang sedang ditinjau untuk item ini.",
+          );
+        } else if (err.status === 403) {
+          setError(
+            "Nomor WhatsApp kamu harus terverifikasi untuk mengirim laporan.",
+          );
+        } else if (err.status === 400) {
+          setError(
+            err.message ||
+              "Data laporan tidak valid. Pastikan alasan telah dipilih.",
+          );
         } else {
-          setError(err.message);
+          setError(err.message || "Gagal mengirim laporan.");
         }
       } else {
         setError("Gagal mengirim laporan.");

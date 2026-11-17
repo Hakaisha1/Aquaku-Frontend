@@ -150,7 +150,7 @@ export function ListingActions({
       <ReportModal
         isOpen={reportOpen}
         onClose={() => setReportOpen(false)}
-        targetType="listing"
+        targetType="LISTING"
         targetId={listingId}
         targetName={title}
       />

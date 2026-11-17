@@ -86,6 +86,8 @@ export type ListingSeller = {
   rating_average?: number | null;
   rating_count?: number;
   whatsapp_url?: string | null;
+  whatsapp_number?: string | null;
+  phone_number?: string | null;
 };
 
 export type Listing = {
@@ -216,10 +218,12 @@ export type ReportReason =
 
 export type ReportStatus = "OPEN" | "RESOLVED" | "DISMISSED";
 
+export type ReportTargetType = "LISTING" | "USER";
+
 export type Report = {
   id: string;
   reporter_id: string;
-  target_type: "listing" | "user";
+  target_type: ReportTargetType | "listing" | "user";
   target_id: string;
   reason: ReportReason;
   details: string | null;
