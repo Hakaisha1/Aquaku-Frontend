@@ -97,11 +97,13 @@ function MarketplaceResults({
                 .slice(0, 2)
                 .toUpperCase(),
               sellerTier: l.seller?.official_store
-                ? "Official Store"
+                ? "Aquaku Official"
+                : l.seller?.verified_store
+                ? "Verified Store"
                 : l.seller?.tier === "personal"
                 ? "Personal"
                 : "Toko",
-              verified: !!l.seller?.verified_store || !!l.seller?.official_store,
+              verified: !!l.seller?.verified_store,
               official: !!l.seller?.official_store || !!l.seller?.shop?.is_official,
               district: l.region?.district || "Semarang",
               delivery: "COD / meetup",

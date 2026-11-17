@@ -168,12 +168,12 @@ export function ShopManager({
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-sm font-bold text-foreground">{shop.name}</h3>
                 {isOfficial ? (
-                  <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-400 border border-emerald-500/20">
-                    <ShieldCheck size={12} /> Official Store
+                  <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-300 border border-emerald-500/30">
+                    <ShieldCheck size={12} /> Aquaku Official
                   </span>
                 ) : isVerified ? (
-                  <span className="inline-flex items-center gap-1 rounded bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand">
-                    <BadgeCheck size={12} /> Toko Terverifikasi
+                  <span className="inline-flex items-center gap-1 rounded bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand border border-brand/20">
+                    <BadgeCheck size={12} /> Verified Store
                   </span>
                 ) : isPending ? (
                   <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
@@ -193,10 +193,10 @@ export function ShopManager({
         </div>
 
         {/* Status Verification Action */}
-        {!isVerified && !isPending && (
+        {!isVerified && !isPending && !isOfficial && (
           <div className="mt-3.5 flex items-center justify-between border-t border-border pt-3">
             <span className="text-[11px] text-muted">
-              Tingkatkan kepercayaan pembeli dengan badge verifikasi.
+              Tingkatkan kepercayaan pembeli dengan badge <strong>Verified Store</strong>.
             </span>
             <button
               type="button"
@@ -204,7 +204,7 @@ export function ShopManager({
               onClick={handleRequestVerification}
               className="button-secondary min-h-7 px-3 py-1 text-xs font-semibold"
             >
-              {requestingVerify ? "Mengajukan..." : "Ajukan Verifikasi"}
+              {requestingVerify ? "Mengajukan..." : "Ajukan Verified Store"}
             </button>
           </div>
         )}
@@ -292,7 +292,7 @@ export function ShopManager({
 
           {user.tier === "personal" && !user.official_store && (
             <div className="rounded-lg bg-surface/80 border border-border/80 p-2.5 text-[11px] text-muted leading-relaxed">
-              💡 <strong>Info:</strong> Pembuatan etalase toko formal ditujukan untuk anggota <strong>Tier Toko / Juragan</strong> atau akun <strong>Toko Resmi (Official Store)</strong>. Jika akun ini disiapkan untuk toko internal resmi, pastikan hak akses akun telah diatur oleh admin.
+              💡 <strong>Info:</strong> Pembuatan etalase toko formal ditujukan untuk anggota <strong>Tier Toko / Juragan</strong>. Penjual umum dapat mengajukan badge <strong>Verified Store</strong> setelah toko aktif. Status <strong>Aquaku Official</strong> khusus untuk 1 toko resmi internal Aquaku dan diatur secara manual oleh admin di database.
             </div>
           )}
 

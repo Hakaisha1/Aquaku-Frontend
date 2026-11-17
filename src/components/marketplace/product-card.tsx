@@ -54,16 +54,19 @@ export function ProductCard({
         </p>
         <div className="mt-1.5 flex items-center gap-1.5 truncate text-[11px] font-medium text-muted">
           {product.official ? (
-            <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-400 border border-emerald-500/20">
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-300 border border-emerald-500/30">
               <ShieldCheck size={11} className="text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-              Official
+              Aquaku Official
             </span>
           ) : product.verified ? (
-            <BadgeCheck
-              size={13}
-              className="shrink-0 text-brand"
-              aria-label="Toko Terverifikasi"
-            />
+            <span className="inline-flex shrink-0 items-center gap-0.5 text-brand" title="Toko Terverifikasi (Verified Store)">
+              <BadgeCheck
+                size={13}
+                className="shrink-0 text-brand"
+                aria-label="Toko Terverifikasi"
+              />
+              <span className="text-[10px] font-bold">Verified</span>
+            </span>
           ) : null}
           <span className="truncate">{product.seller}</span>
         </div>

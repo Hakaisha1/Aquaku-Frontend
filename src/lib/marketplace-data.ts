@@ -44,7 +44,7 @@ export type Product = {
   condition: string;
   seller: string;
   sellerInitials: string;
-  sellerTier: "Personal" | "Toko" | "Official Store";
+  sellerTier: "Personal" | "Toko" | "Verified Store" | "Aquaku Official";
   verified: boolean;
   official?: boolean;
   district: string;

@@ -273,9 +273,11 @@ export function BackendMarketplaceListing({
   const isOfficial = Boolean(
     listing.seller?.official_store || listing.seller?.shop?.is_official,
   );
-  const isVerified = Boolean(listing.seller?.verified_store || isOfficial);
+  const isVerified = Boolean(listing.seller?.verified_store);
   const sellerTier = isOfficial
-    ? "Official Store"
+    ? "Aquaku Official"
+    : isVerified
+    ? "Verified Store"
     : listing.seller?.tier === "toko" || listing.seller?.tier === "juragan"
     ? "Toko"
     : "Personal";
@@ -398,23 +400,26 @@ export function BackendMarketplaceListing({
                     {sellerName}
                   </h2>
                   {isOfficial ? (
-                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-300 border border-emerald-500/30">
                       <ShieldCheck size={12} className="text-emerald-600 dark:text-emerald-400" />
-                      Official Store
+                      Aquaku Official
                     </span>
                   ) : isVerified ? (
-                    <BadgeCheck
-                      size={16}
-                      className="text-brand shrink-0"
-                      aria-label="Toko terverifikasi"
-                    />
+                    <span className="inline-flex items-center gap-1 rounded bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand border border-brand/20">
+                      <BadgeCheck
+                        size={14}
+                        className="text-brand shrink-0"
+                        aria-label="Toko Terverifikasi"
+                      />
+                      Verified Store
+                    </span>
                   ) : null}
                 </div>
                 <p className="mt-1 text-[11px] text-muted">
                   {isOfficial
-                    ? "Toko Resmi Internal Aquaku • Jaminan Kualitas & Transaksi Aman"
-                    : sellerTier === "Toko"
-                    ? "Toko terverifikasi"
+                    ? "Toko Resmi Internal Aquaku • Jaminan Kualitas Langsung Platform"
+                    : isVerified
+                    ? "Penjual Terverifikasi (Verified Store) • Identitas Terpercaya"
                     : "Hobiis Personal"}
                 </p>
               </div>

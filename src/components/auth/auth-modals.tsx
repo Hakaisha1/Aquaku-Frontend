@@ -474,16 +474,19 @@ export function AuthModals() {
                     {user.display_name}
                   </h2>
                   {user.official_store ? (
-                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-300 border border-emerald-500/30">
                       <ShieldCheck size={12} className="text-emerald-600 dark:text-emerald-400" />
-                      Official Store
+                      Aquaku Official
                     </span>
                   ) : user.verified_store ? (
-                    <BadgeCheck
-                      size={18}
-                      className="shrink-0 text-brand"
-                      aria-label="Toko Terverifikasi"
-                    />
+                    <span className="inline-flex items-center gap-1 rounded bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand border border-brand/20">
+                      <BadgeCheck
+                        size={13}
+                        className="shrink-0 text-brand"
+                        aria-label="Toko Terverifikasi"
+                      />
+                      Verified Store
+                    </span>
                   ) : null}
                 </div>
                 <p className="truncate text-xs text-muted">{user.email}</p>
