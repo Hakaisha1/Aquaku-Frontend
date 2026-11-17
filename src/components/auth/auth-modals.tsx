@@ -35,6 +35,7 @@ export function AuthModals() {
     logout,
     openMembershipModal,
     openTransactionsModal,
+    updateWhatsAppNumber,
   } = useAuth();
 
   // OTP form & on-demand state
@@ -44,6 +45,37 @@ export function AuthModals() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [otpStep, setOtpStep] = useState<"idle" | "sent">("idle");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
+
+  // WhatsApp Profile Sync state
+  const [waInput, setWaInput] = useState("");
+  const [savingWa, setSavingWa] = useState(false);
+  const [waSavedMsg, setWaSavedMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isAccountModalOpen && typeof window !== "undefined") {
+      const stored =
+        localStorage.getItem("aquaku_user_phone") ||
+        user?.whatsapp_number ||
+        user?.phone_number ||
+        "";
+      setWaInput(stored);
+      setWaSavedMsg(null);
+    }
+  }, [isAccountModalOpen, user]);
+
+  const handleSaveWa = async () => {
+    if (!waInput.trim()) return;
+    setSavingWa(true);
+    setWaSavedMsg(null);
+    try {
+      await updateWhatsAppNumber(waInput.trim());
+      setWaSavedMsg("Nomor WhatsApp berhasil disimpan dan disinkronkan ke backend!");
+    } catch {
+      setWaSavedMsg("Gagal menyimpan nomor WhatsApp.");
+    } finally {
+      setSavingWa(false);
+    }
+  };
 
   useEffect(() => {
     if (devOtp) {
@@ -446,6 +478,42 @@ export function AuthModals() {
                 )}
               </div>
             )}
+
+            {/* WhatsApp Contact Section */}
+            <div className="my-3 rounded-xl border border-border bg-canvas p-4">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                  <Phone size={14} className="text-brand" />
+                  Nomor WhatsApp Penjual
+                </span>
+                <span className="text-[10px] text-muted">Untuk chat langsung pembeli</span>
+              </div>
+              <p className="mt-1 text-[11px] leading-5 text-muted">
+                Nomor ini digunakan agar tombol &quot;Chat Penjual&quot; pada listing kamu langsung membuka ruang obrolan WhatsApp kamu.
+              </p>
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="tel"
+                  placeholder="Contoh: 081234567890"
+                  value={waInput}
+                  onChange={(e) => setWaInput(e.target.value)}
+                  className="field flex-1 py-1.5 text-xs"
+                />
+                <button
+                  type="button"
+                  disabled={savingWa || !waInput.trim()}
+                  onClick={handleSaveWa}
+                  className="button-primary min-h-9 shrink-0 px-3.5 py-1.5 text-xs"
+                >
+                  {savingWa ? "Menyimpan…" : "Simpan"}
+                </button>
+              </div>
+              {waSavedMsg && (
+                <p className="mt-2 text-[11px] font-semibold text-brand">
+                  {waSavedMsg}
+                </p>
+              )}
+            </div>
 
             {/* Menu Links */}
             <div className="space-y-2 py-2">

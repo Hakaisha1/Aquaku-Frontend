@@ -277,6 +277,14 @@ export function SellModal() {
         condition,
         photo_ids: photoIds,
       });
+      // Pastikan whatsapp_number penjual tersinkronkan ke profil akun di backend
+      if (typeof window !== "undefined") {
+        const storedPhone =
+          localStorage.getItem("aquaku_user_phone") || user?.phone_number;
+        if (storedPhone && !user?.whatsapp_number) {
+          api.updateMe({ whatsapp_number: storedPhone }).catch(() => {});
+        }
+      }
       setSuccess(true);
       await refreshQuota();
       setTimeout(() => {

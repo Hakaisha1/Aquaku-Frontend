@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -24,44 +24,80 @@ import { ProductCard } from "@/components/marketplace/product-card";
 import { ListingActions } from "@/components/marketplace/listing-actions";
 import { formatRupiah, products } from "@/lib/marketplace-data";
 import { api, ApiError } from "@/lib/api";
+import { useAuth } from "@/context/auth-context";
 import type { Listing, ListingSeller } from "@/types/api";
 
 function buildSellerWhatsAppUrl(
   seller?: ListingSeller | null,
   productTitle: string = "produk",
   sellerName: string = "penjual",
-): string {
+  ownerPhoneFallback?: string | null,
+): { url: string; hasDirectNumber: boolean; displayTarget: string } {
   const message = `Halo ${sellerName}, saya tertarik dengan listing "${productTitle}" di Aquaku. Apakah masih tersedia? Boleh info kondisi dan lokasi COD di Semarang?`;
   const encodedText = encodeURIComponent(message);
 
-  const raw =
-    seller?.whatsapp_url ||
-    seller?.whatsapp_number ||
-    seller?.phone_number ||
-    "";
+  const rawCandidates = [
+    seller?.whatsapp_url,
+    seller?.whatsapp_number,
+    seller?.phone_number,
+    ownerPhoneFallback,
+  ].filter(Boolean) as string[];
 
-  if (raw && raw.trim()) {
+  for (const raw of rawCandidates) {
     const trimmed = raw.trim();
+    if (!trimmed) continue;
+
+    // Full URL handling (wa.me or api.whatsapp.com)
     if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
       try {
-        const url = new URL(trimmed);
-        url.searchParams.set("text", message);
-        return url.toString();
+        const parsed = new URL(trimmed);
+        const phoneParam = (parsed.searchParams.get("phone") || "").replace(/[^0-9]/g, "");
+        const pathParam = parsed.pathname.replace(/^\//, "").replace(/[^0-9]/g, "");
+        const num = phoneParam || pathParam;
+        if (num && num.length >= 8) {
+          const cleanNum = num.replace(/^0/, "62");
+          return {
+            url: `https://wa.me/${cleanNum}?text=${encodedText}`,
+            hasDirectNumber: true,
+            displayTarget: cleanNum,
+          };
+        }
       } catch {
         // Fallback
       }
     }
+
+    // wa.me/... prefix handling
     if (trimmed.startsWith("wa.me/")) {
       const base = trimmed.split("?")[0];
-      return `https://${base}?text=${encodedText}`;
+      const num = base.replace(/^wa\.me\//, "").replace(/[^0-9]/g, "");
+      if (num && num.length >= 8) {
+        const cleanNum = num.replace(/^0/, "62");
+        return {
+          url: `https://wa.me/${cleanNum}?text=${encodedText}`,
+          hasDirectNumber: true,
+          displayTarget: cleanNum,
+        };
+      }
     }
+
+    // Direct phone number handling (e.g. 08123456789 or +628123456789)
     const cleanNumber = trimmed.replace(/[^0-9]/g, "").replace(/^0/, "62");
     if (cleanNumber.length >= 8) {
-      return `https://wa.me/${cleanNumber}?text=${encodedText}`;
+      return {
+        url: `https://wa.me/${cleanNumber}?text=${encodedText}`,
+        hasDirectNumber: true,
+        displayTarget: cleanNumber,
+      };
     }
   }
 
-  return `https://wa.me/?text=${encodedText}`;
+  // Fallback if no valid direct number found
+  return {
+    url: `https://wa.me/?text=${encodedText}`,
+    hasDirectNumber: false,
+    displayTarget: "",
+  };
 }
 
 export function BackendMarketplaceListing({
@@ -69,9 +105,79 @@ export function BackendMarketplaceListing({
 }: {
   listingId: string;
 }) {
+  const { user, updateWhatsAppNumber } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [syncingWa, setSyncingWa] = useState(false);
+  const [syncMsg, setSyncMsg] = useState<string | null>(null);
+  const autoSyncedRef = useRef(false);
+
+  const isOwner = Boolean(
+    user &&
+      listing?.seller &&
+      (user.id === listing.seller.id ||
+        (user.display_name &&
+          user.display_name === listing.seller.display_name))
+  );
+
+  const ownerStoredPhone =
+    isOwner && typeof window !== "undefined"
+      ? localStorage.getItem("aquaku_user_phone") ||
+        user?.whatsapp_number ||
+        user?.phone_number ||
+        null
+      : null;
+
+  // Background auto-sync if owner is viewing their listing and backend hasn't registered whatsapp_url yet
+  useEffect(() => {
+    if (
+      isOwner &&
+      ownerStoredPhone &&
+      listing &&
+      !listing.seller?.whatsapp_url &&
+      !autoSyncedRef.current
+    ) {
+      autoSyncedRef.current = true;
+      updateWhatsAppNumber(ownerStoredPhone)
+        .then(() => api.getListing(listingId))
+        .then((updated) => setListing(updated))
+        .catch(() => {});
+    }
+  }, [isOwner, ownerStoredPhone, listing, listingId, updateWhatsAppNumber]);
+
+  const handleSyncOwnerWhatsApp = async (customPhone?: string) => {
+    const targetPhone =
+      customPhone ||
+      ownerStoredPhone ||
+      user?.whatsapp_number ||
+      user?.phone_number ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("aquaku_user_phone")
+        : null);
+
+    if (!targetPhone) {
+      const prompted = window.prompt(
+        "Masukkan nomor WhatsApp Anda (contoh: 081234567890):",
+        ""
+      );
+      if (!prompted) return;
+      return handleSyncOwnerWhatsApp(prompted.trim());
+    }
+
+    setSyncingWa(true);
+    setSyncMsg(null);
+    try {
+      await updateWhatsAppNumber(targetPhone);
+      const refreshed = await api.getListing(listingId);
+      setListing(refreshed);
+      setSyncMsg("Nomor WhatsApp berhasil diaktifkan untuk listing ini!");
+    } catch {
+      setSyncMsg("Gagal mengaktifkan nomor WhatsApp di server.");
+    } finally {
+      setSyncingWa(false);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -309,17 +415,61 @@ export function BackendMarketplaceListing({
             </div>
           </section>
 
-          {/* Direct WhatsApp Contact Button */}
+          {/* Direct WhatsApp Contact Button & Owner Sync Helper */}
           {(() => {
-            const waUrl = buildSellerWhatsAppUrl(
+            const { url, hasDirectNumber, displayTarget } = buildSellerWhatsAppUrl(
               listing.seller,
               listing.title,
               sellerName,
+              ownerStoredPhone,
             );
+
             return (
-              <div>
+              <div className="space-y-2">
+                {isOwner && !hasDirectNumber && (
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-bold text-amber-700 dark:text-amber-400">
+                        Nomor WhatsApp Belum Terdaftar
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleSyncOwnerWhatsApp()}
+                        disabled={syncingWa}
+                        className="button-primary min-h-8 shrink-0 px-2.5 py-1 text-[11px]"
+                      >
+                        {syncingWa ? "Menyinkronkan…" : "Aktifkan Nomor WA"}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-[11px] leading-relaxed text-amber-800 dark:text-amber-300">
+                      Pembeli saat ini belum bisa langsung chat ke nomor Anda. Klik &quot;Aktifkan Nomor WA&quot; agar nomor WhatsApp Anda terhubung langsung ke listing ini.
+                    </p>
+                    {syncMsg && (
+                      <p className="mt-1.5 font-bold text-emerald-600 dark:text-emerald-400">
+                        {syncMsg}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {isOwner && hasDirectNumber && (
+                  <div className="flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-[11px] text-emerald-700 dark:text-emerald-400">
+                    <span>
+                      Nomor WhatsApp Anda aktif: <strong>+{displayTarget}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleSyncOwnerWhatsApp()}
+                      disabled={syncingWa}
+                      className="text-[10px] font-bold underline hover:opacity-80"
+                    >
+                      Ubah / Sinkron Ulang
+                    </button>
+                  </div>
+                )}
+
                 <a
-                  href={waUrl}
+                  href={url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="button-primary w-full inline-flex items-center justify-center gap-2 py-3 text-sm font-bold shadow-sm"
@@ -328,7 +478,9 @@ export function BackendMarketplaceListing({
                   Chat Penjual di WhatsApp
                 </a>
                 <p className="mt-1.5 text-center text-[10px] text-muted">
-                  Akan membuka obrolan WhatsApp ke {sellerName} dengan pesan pertanyaan terformat
+                  {hasDirectNumber
+                    ? `Membuka obrolan WhatsApp langsung dengan penjual (+${displayTarget}) beserta draf pertanyaan.`
+                    : `Penjual belum mendaftarkan nomor WhatsApp langsung di server. WhatsApp akan terbuka dengan draf pesan.`}
                 </p>
               </div>
             );

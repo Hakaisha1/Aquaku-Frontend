@@ -6,6 +6,8 @@ export type UserProfile = {
   email: string;
   display_name: string;
   phone_number?: string | null;
+  whatsapp_number?: string | null;
+  bio?: string | null;
   avatar_url: string | null;
   phone_verified: boolean;
   tier: UserTier;

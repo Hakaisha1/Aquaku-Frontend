@@ -52,6 +52,7 @@ type AuthContextType = {
   logout: () => void | Promise<void>;
   refreshUser: () => Promise<void>;
   refreshQuota: () => Promise<void>;
+  updateWhatsAppNumber: (phone: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -167,10 +168,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   const closeTransactionsModal = () => setIsTransactionsModalOpen(false);
 
+  const updateWhatsAppNumber = async (phone: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("aquaku_user_phone", phone);
+    }
+    const updated = await api.updateMe({ whatsapp_number: phone });
+    setUser(updated);
+  };
+
   const login = async (credentials: { email: string; password: string }) => {
     const pair = await api.login(credentials);
     setUser(pair.user);
     closeAuthModal();
+    if (typeof window !== "undefined") {
+      const storedPhone = localStorage.getItem("aquaku_user_phone");
+      if (storedPhone) {
+        api.updateMe({ whatsapp_number: storedPhone }).catch(() => {});
+      }
+    }
   };
 
   const register = async (data: {
@@ -179,6 +194,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     display_name: string;
     phone_number: string;
   }) => {
+    if (typeof window !== "undefined" && data.phone_number) {
+      localStorage.setItem("aquaku_user_phone", data.phone_number);
+    }
     const res = await api.register(data);
     // Sesuai alur fleksibel: Login otomatis di latar belakang untuk mendapatkan sesi,
     // tanpa memaksakan popup OTP. User bebas menjelajah, dan OTP baru ditanyakan saat
@@ -189,6 +207,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password: data.password,
       });
       setUser(pair.user);
+      if (data.phone_number) {
+        api.updateMe({ whatsapp_number: data.phone_number }).catch(() => {});
+      }
     } catch {
       // fallback
     }
@@ -200,6 +221,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updated = await api.verifyPhone(code);
     setUser(updated);
     closePhoneVerifyModal();
+    if (typeof window !== "undefined") {
+      const storedPhone = localStorage.getItem("aquaku_user_phone");
+      if (storedPhone) {
+        api.updateMe({ whatsapp_number: storedPhone }).catch(() => {});
+      }
+    }
   };
 
   const resendOtp = async () => {
@@ -253,6 +280,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         refreshUser,
         refreshQuota,
+        updateWhatsAppNumber,
       }}
     >
       {children}
