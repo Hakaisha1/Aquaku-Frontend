@@ -1,212 +1,200 @@
 # 🌊 Aquaku Pitch Deck Presentation Guide
-> **Dokumen Panduan Komprehensif untuk Agent / Tim dalam Menyusun Slide Pitching Presentasi Aquaku**  
-> *Target Audiens: Juri Technopreneurship, Investor Awal (Angel / Seed), Mitra Bisnis & Komunitas*
+> **Dokumen Panduan Slide Pitching Tugas Mata Kuliah Technopreneurship**  
+> *Target Audiens: Dosen Penguji Technopreneurship, Mentor Bisnis, dan Mitra Komunitas Lokal*  
+> *Prinsip Utama: Data Berbasis Fakta Nyata (Ground-Level Validation), Angka Realistis, Bottom-Up Sizing, dan Bebas Klaim Bombastis yang Tidak Tervalidasi.*
 
 ---
 
-## 📌 1. Ikhtisar Platform (Executive Summary)
+## 📌 1. Ikhtisar Proyek (Executive Summary)
 
-* **Nama Produk:** **Aquaku** (`aquaku.id`)
-* **Tagline:** *"Ekosistem Komunitas & Marketplace Terpercaya Khusus Hobiis Aquascape"*
-* **Format:** Web Platform Responsif (Mobile-first PWA & Desktop)
-* **Status Saat Ini:** **MVP Siap Rilis (Production-Ready Staging)** dengan integrasi penuh backend (NestJS + PostgreSQL + MongoDB + Cloudinary + OTP.ID WhatsApp).
-* **Fokus Peluncuran Awal:** **Semarang & Sekitarnya** (Solusi logistik aman untuk produk hidup: tanaman, ikan, dan hardscape via COD & kurir instan).
-* **Anchor Market Maker:** Menggandeng toko/jastiper terpercaya sebagai **Aquaku Official Store** pertama (*Ryan di Jastip*) untuk menjamin ketersediaan barang sejak hari pertama.
-
----
-
-## 🎯 2. Struktur Slide-by-Slide Blueprint (11–12 Slide Standar)
-
-Gunakan panduan berikut saat menyusun slide di Canva, PowerPoint, Gamma, atau Figma:
+* **Nama Proyek:** **Aquaku** (`aquaku.id`)
+* **Kategori:** *Niche Vertical Community & Local Marketplace*
+* **Status Saat Ini:** **Fungsional MVP (Production-Ready Staging)** — Backend & Frontend terintegrasi penuh (Next.js 16 + NestJS + PostgreSQL + MongoDB + Cloudinary + WhatsApp OTP).
+* **Fokus Peluncuran:** **Captive Market Wilayah Semarang** (Menjawab risiko logistik produk hidup: tanaman aquascape, fauna nano, dan hardscape via COD & kurir instan).
+* **Anchor Partner:** Toko jastip lokal (*Ryan di Jastip*) sebagai **Aquaku Official Store** pertama untuk mengatasi kendala toko kosong di fase awal (*market maker*).
 
 ---
 
-### Slide 1: Cover & Hook
-* **Headline:** Aquaku — Rumah Bagi Hobiis Aquascape Indonesia
-* **Sub-headline:** Menghubungkan Komunitas, Pengetahuan, dan Transaksi Produk Hidup dalam Satu Ekosistem Terkurasi.
+## 🎯 2. Struktur Slide-by-Slide Blueprint (11 Slide Technopreneurship)
+
+---
+
+### Slide 1: Cover & Identitas Proyek
+* **Headline:** Aquaku — Ekosistem Terpadu Komunitas & Jual-Beli Khusus Hobiis Aquascape
+* **Sub-headline:** Menjembatani Pengetahuan Perawatan dan Transaksi Produk Hidup yang Aman di Wilayah Semarang.
 * **Elemen Visual:** 
-  * Logo Aquaku (Hijau Emerald & Nuansa Air).
-  * Foto aquascape berkualitas tinggi (*lush nature aquarium* dengan tanaman segar).
-  * Mockup layar web Aquaku di smartphone dan laptop.
-* **Presenter Info:** Nama Tim / Founder, Technopreneurship 2026.
+  * Logo resmi Aquaku (Emerald Green & Water theme).
+  * Mockup layar web Aquaku (antarmuka forum dan kartu produk di desktop & smartphone).
+* **Informasi Tim:** Nama Tim Mahasiswa, Program Studi, Mata Kuliah Technopreneurship 2026.
 
 ---
 
-### Slide 2: The Problem (Masalah Nyata di Lapangan)
-* **Headline:** Ekosistem Aquascape Saat Ini: Terfragmentasi, Rentan Penipuan, & Logistik Berisiko
-* **3 Masalah Utama:**
-  1. **Diskusi & Transaksi Terpisah (*Fragmented Experience*):** Hobiis ngobrol dan sharing di grup Facebook/WA, tetapi harus belanja di marketplace umum. Tidak ada konteks perawatan saat membeli.
-  2. **Marketplace Raksasa Gagal Memahami Produk Hidup:** Tanaman busuk karena pengiriman ekspedisi 3–5 hari; ikan mati (*dead on arrival*); marketplace umum tidak memiliki tag kondisi khas hobi (Emersed/Submersed, Trimmingan, Rimpang, BNIB, Second).
-  3. **Tingginya Angka Penipuan & Kurangnya Trust:** Transaksi di media sosial sering berakhir scam transfer langsung; pembeli takut, penjual hobiis kesulitan menjual bibit berlebih.
+### Slide 2: The Problem (Masalah Nyata Hasil Observasi Hobi)
+* **Headline:** Mengapa Jual-Beli Aquascape di Media Sosial dan E-Commerce Umum Bermasalah?
+* **3 Problem Utama (Berdasarkan Observasi Lapangan):**
+  1. **Komunitas dan Transaksi Terpecah:** Diskusi perawatan dilakukan di grup Facebook/WA, tetapi mencari barang harus ke marketplace umum yang tidak memiliki konteks perawatan.
+  2. **Tingginya Risiko Produk Hidup:** Marketplace umum mengandalkan ekspedisi 3–5 hari; tanaman air rentan lumer/busuk dan ikan berisiko mati di perjalanan (*death on arrival*).
+  3. **Rentan Penipuan & Kurangnya Standar Kondisi:** Transaksi via grup medsos sering berujung penipuan transfer langsung; tidak ada tag kondisi standar khas hobi (seperti: *Emersed, Submersed, Trimmingan, Rimpang, BNIB, Second*).
 
 ---
 
-### Slide 3: The Solution (Solusi Aquaku)
-* **Headline:** Aquaku: *Dual-Engine Platform* (Komunitas Edukatif + Marketplace Lokal Terverifikasi)
-* **Poin Solusi:**
-  * **Katalog Khusus Hobi:** Taksonomi produk terkurasi (Tanaman Air, Ikan/Udang Fauna, Hardscape Batu/Kayu, Peralatan, Substrat/Pupuk).
-  * **Fokus Logistik Lokal Semarang:** Same-day delivery & titik temu COD/Meetup terverifikasi, meminimalkan risiko kematian tanaman/ikan hingga 0%.
-  * **Mesin Kepercayaan (*Trust Engine*):** Verifikasi nomor WhatsApp dengan OTP resmi, konfirmasi transaksi dua arah (pembeli & penjual), serta reputasi rating nyata.
+### Slide 3: The Solution & Value Proposition
+* **Headline:** Aquaku: Platform Vertikal yang Menggabungkan Edukasi & Marketplace Terkurasi
+* **Poin Solusi Utama:**
+  * **Katalog & Tag Spesifik Hobi:** Filter berbasis jenis tanaman (Trimming, Rimpang, TC) dan kondisi barang yang terstandardisasi.
+  * **Fokus Pasar Lokal (Semarang Pilot):** Memprioritaskan transaksi *same-day* (COD / titik temu komunitas dan kurir instan) untuk menjaga kelangsungan hidup tanaman/fauna.
+  * **Mesin Kepercayaan (*Trust Engine*):** Autentikasi nomor WhatsApp berbasis OTP resmi, riwayat transaksi, dan sistem ulasan pembeli-penjual terverifikasi.
 
 ---
 
-### Slide 4: Key Features & Product Demo (Fitur Unggulan Produk)
-* **Headline:** Dirancang Khusus untuk Memenuhi Kebutuhan Spesifik Hobiis
+### Slide 4: Product Showcase (Fitur Inti yang Sudah Berjalan)
+* **Headline:** Solusi Nyata yang Siap Digunakan (Bukan Sekadar Konsep Mockup)
 * **Fitur Utama yang Ditampilkan:**
-  1. **Marketplace Lokal dengan Tag Khusus:** Tag kondisi BNIB, Baru, Bekas/Second, dan tipe tanaman (Trimming, Rimpang, TC).
-  2. **Direct WhatsApp Contact:** Tombol pesan langsung ke penjual dengan *pre-filled message* detail barang.
-  3. **Forum Diskusi Terintegrasi:** Berbagi inspirasi *tank showcase*, identifikasi masalah alga, dan tanya jawab perawatan dengan foto beresolusi tinggi.
-  4. **Profil Toko & Multi-Role:** Hobiis personal bisa langsung jual barang bekas, sementara toko formal memiliki etalase brand sendiri.
+  1. **Marketplace Terstruktur:** Listing produk lengkap dengan foto Cloudinary, lokasi kecamatan di Semarang, dan nomor WhatsApp penjual langsung.
+  2. **Forum Diskusi Interaktif:** Tempat hobiis pamer akuarium (*showcase*), konsultasi masalah alga, dan tanya-jawab perawatan air.
+  3. **Manajemen Profil Toko (Shop Manager):** Hobiis biasa bisa langsung melepas trimmingan pribadi, sementara toko profesional memiliki etalase toko mandiri.
 
 ---
 
-### Slide 5: The Trust Engine & Seller Architecture (Pembeda Status Penjual)
-* **Headline:** Struktur Kepercayaan Berlapis: Menjamin Keamanan Transaksi
+### Slide 5: Arsitektur Penjual & Keamanan (Trust Architecture)
+* **Headline:** Struktur Pembeda Penjual untuk Menjamin Keamanan Transaksi
 * **Tiga Kategori Seller di Aquaku:**
   1. **🛡️ Aquaku Official (Toko Resmi Platform):**
-     * HANYA 1 di seluruh platform, dioperasikan tim internal (*Ryan di Jastip*).
-     * Berfungsi sebagai *Market Maker*: Menjamin ketersediaan bibit tanaman segar, garansi DOA (Death on Arrival), dan perlengkapan sejak hari pertama peluncuran.
-     * Hanya dapat diaktifkan secara manual di database.
+     * **Hanya ada 1 toko**, dikelola oleh internal/mitra utama (*Ryan di Jastip*).
+     * Berfungsi sebagai *Market Maker*: Menjamin stok bibit tanaman segar, garansi hidup, dan perlengkapan siap kirim sejak hari pertama.
+     * Hanya bisa diaktifkan secara manual di database oleh pengelola sistem.
   2. **✓ Verified Store (Toko Mitra Terverifikasi):**
-     * Untuk toko/reseller mitra di komunitas yang telah melewati verifikasi KYC dan review admin.
-     * Mendapatkan badge centang terpercaya untuk mendongkrak penjualan.
+     * Untuk toko/reseller fisik di Semarang yang mengajukan verifikasi profil toko dan disetujui admin.
   3. **Hobiis Personal (Verified Phone):**
-     * Akun perorangan dengan nomor HP terverifikasi WhatsApp OTP. Kuota listing terbatas untuk mencegah spam.
+     * Akun perorangan dengan verifikasi nomor WhatsApp OTP. Dibatasi kuota 5 listing aktif agar tidak melakukan spam.
 
 ---
 
-### Slide 6: Market Opportunity (Peluang Pasar Aquascape)
-* **Headline:** Pasar Niche dengan Loyalitas Tinggi dan *High Spending Basket Size*
-* **Data & Proyeksi Pasar:**
-  * **Hobi Aquascape di Indonesia:** Indonesia merupakan salah satu eksportir tanaman air dan ikan hias terbesar di dunia. Komunitas lokal di Facebook memiliki ratusan ribu anggota aktif di berbagai kota.
-  * **TAM (Total Addressable Market):** Pasar ikan hias & aquascaping nasional di Indonesia (~Rp 2,5+ Triliun per tahun).
-  * **SAM (Serviceable Available Market):** Hobiis aktif dan toko aquascape di Jawa Tengah & DIY.
-  * **SOM (Serviceable Obtainable Market - Fase 1):** Komunitas aquascape metropolitan Semarang (50+ toko ikan/aquascape dan ~10.000 hobiis aktif).
-* **Karakteristik Pengguna:** Hobiis aquascape memiliki *average order value* tinggi untuk tanaman langka (Bucephalandra, Anubias), pupuk, tabung CO2, dan filter canister.
+### Slide 6: Validasi Pasar & Target Pengguna (Bottom-Up Market Sizing)
+* **Headline:** Validasi Pasar Riil Berbasis Komunitas Lokal Semarang
+* **Analisis Pasar Bottom-Up (Bukan Angka Khayalan):**
+  * **Ground Reality di Semarang:**
+    * Terdapat sekitar **30–50 toko fisik akuarium & aquascape** (tersebar di area Pasar Ikan Karimata, Jl. Kartini, Tembalang, Banyumanik, dan Semarang Barat).
+    * Estimasi anggota aktif grup Facebook & komunitas WhatsApp aquascape regional Semarang berkisar **3.000 – 5.000 orang**.
+  * **Target Realistis Tahap MVP (Fase 1 - 3 Bulan Pertama):**
+    * **5–10 Toko/Penjual Rutin** bergabung ke platform.
+    * **50–100 Hobiis Aktif** (terdaftar dengan WhatsApp terverifikasi).
+    * **100+ Listing Produk** aktif di wilayah Semarang.
+  * **Customer Segments:**
+    1. *Pemula:* Butuh panduan tanaman mudah dan bibit murah dari hobiis sekitar.
+    2. *Hobiis Aktif:* Rutin merapikan (*trimming*) tanaman dan ingin menjual kembali daripada dibuang.
+    3. *Toko Lokal:* Ingin menjangkau pembeli lokal tanpa terpotong komisi e-commerce besar.
 
 ---
 
-### Slide 7: Business Model (Monetisasi Tanpa Beban Komisi)
-* **Headline:** Model Bisnis Berkelanjutan: *Zero-Commission Marketplace* dengan Monetisasi Berulang
-* **Mengapa Tanpa Komisi Transaksi?** Mencegah kebocoran transaksi ke WhatsApp. Penjual membayar di muka untuk fitur dan visibilitas.
-* **Pilar Pendapatan:**
-  1. **Langganan Penjual (Membership Tiers):**
-     * **Tier Toko (Rp 40.000/bln):** Kuota 30 listing, masa tayang 60 hari, bebas cooldown, hak menjual barang Baru/BNIB.
-     * **Tier Juragan (Rp 100.000/bln):** Kuota 100 listing, masa tayang 90 hari, prioritas search, hak kustomisasi toko.
-  2. **Add-on Slots & Cooldown Bypass:** Penjual personal yang ingin slot tambahan tanpa langganan bulanan (Rp 2.000 - Rp 5.000 per slot).
-  3. **Penjualan Toko Internal (Aquaku Official):** Margin penjualan produk tanaman segar, hardscape, dan layanan jastip lelang.
-  4. **Promoted Listings & Sponsorship Brand:** Slot banner dan etalase khusus untuk brand pupuk/lampu aquascape lokal.
+### Slide 7: Model Bisnis & Kelayakan Finansial (Financial Feasibility)
+* **Headline:** Model Bisnis Berkelanjutan: *Zero-Commission* dengan Arus Kas Dapat Diprediksi
+* **Mengapa Tanpa Komisi Transaksi?** Mencegah penjual dan pembeli melakukan transaksi di luar aplikasi (*leakage*). Biaya dikenakan di muka untuk fasilitas listing dan profil.
+* **1. Beban Biaya Operasional Riil (Monthly Lean Burn Rate Mahasiswa):**
+  * Server Backend (Railway Hobby/Staging): ~Rp 100.000 – Rp 150.000 / bulan
+  * Database & Storage (Supabase/Neon + MongoDB + Cloudinary Free-to-Starter): ~Rp 0 – Rp 100.000 / bulan
+  * WhatsApp OTP Gateway (OTP.ID): ~Rp 50.000 / 200 verifikasi
+  * Domain & Pemeliharaan: ~Rp 25.000 / bulan (biaya tahunan diamortisasi)
+  * **Total Biaya Operasional Dasar: ± Rp 175.000 – Rp 325.000 / bulan.**
+
+* **2. Simulasi Pendapatan Awal (Berdasarkan Target Realistis):**
+  * **Tier Toko (Rp 40.000/bln):** Target 5 toko lokal = Rp 200.000
+  * **Tier Juragan (Rp 100.000/bln):** Target 2 toko besar/supplier = Rp 200.000
+  * **Add-on Kuota Listing Personal (Rp 3.000/slot):** Estimasi 20 slot = Rp 60.000
+  * **Margin Toko Internal (Aquaku Official / Jastip):** Estimasi laba kotor = Rp 300.000 – Rp 500.000
+  * **Total Estimasi Pemasukan Awal: ± Rp 760.000 – Rp 960.000 / bulan.**
+
+* **3. Titik Impas (Break-Even Point / BEP):**
+  * Proyek ini **mencapai titik impas (BEP) hanya dengan 4–5 toko berlangganan**.
+  * Tidak membutuhkan suntikan modal besar untuk bertahan hidup (*self-sustaining* sejak peluncuran awal).
 
 ---
 
-### Slide 8: Go-to-Market Strategy & Local Pilot (Strategi Eksekusi)
-* **Headline:** Eksekusi Lapangan: Memulai dari Komunitas Semarang Menuju Jawa Tengah
-* **Langkah Go-to-Market:**
-  * **Fase 1 (Seed & Anchor):** Bekerja sama dengan *Ryan di Jastip* dan 5–10 toko aquascape terkemuka di Semarang sebagai seller awal.
-  * **Fase 2 (Community Infiltration):** Promosi di grup Facebook Aquascape Semarang & Jateng melalui konten bermanfaat, tutorial, dan link listing trimmingan murah.
-  * **Fase 3 (Offline Activation):** Mengadakan acara "Meetup & Trimming Exchange" (Tukar Trimmingan Bersama) di Semarang untuk menarik ratusan registrasi akun baru.
-  * **Fase 4 (Ekspansi Regional):** Perluasan bertahap ke Ungaran, Salatiga, Demak, Kendal, hingga Solo dan Yogyakarta.
+### Slide 8: Strategi Peluncuran & Validasi Lapangan (Go-to-Market)
+* **Headline:** Strategi Eksekusi: Pendekatan Komunitas Langsung (*Grassroots Approach*)
+* **Tahapan Peluncuran Lapangan:**
+  1. **Door-to-Door Onboarding Toko:** Mengunjungi langsung 10 toko aquascape di Semarang (Jl. Kartini & Karimata) untuk mendemokan kemudahan pasang etalase toko.
+  2. **Infiltrasi Organik Grup Media Sosial:** Membagikan thread edukasi perawatan tanaman di grup Facebook aquascape lokal yang menautkan katalog trimmingan murah di Aquaku.
+  3. **Aktivasi Offline (Trimming Gathering):** Mengadakan meetup kecil komunitas hobiis di Semarang dengan konsep *"Bawa Trimminganmu, Tukar Gratis atau Jual di Aquaku"*.
+  4. **Anchor Reliability:** Memastikan toko internal (*Ryan di Jastip*) selalu siap merespons pesanan dan memberikan contoh transaksi yang memuaskan.
 
 ---
 
-### Slide 9: Competitive Advantage / Moat (Keunggulan Kompetitif)
-* **Headline:** Mengapa Platform Raksasa dan Grup Media Sosial Tidak Bisa Mengalahkan Aquaku
+### Slide 9: Keunggulan Kompetitif (Competitor Comparison)
+* **Headline:** Mengapa Aquaku Lebih Relevan Dibanding Media Sosial dan E-Commerce Raksasa?
 
-| Parameter | Grup Facebook / WA | Marketplace Umum (Tokopedia/Shopee) | 🌊 Aquaku |
+| Parameter Pembanding | Grup Medsos (Facebook / WA) | Marketplace Umum (Shopee/Tokopedia) | 🌊 Aquaku |
 | :--- | :--- | :--- | :--- |
-| **Pencarian Produk** | Berantakan, tenggelam dalam hitungan jam | Algoritma random, banyak produk salah label | Terstruktur per kategori dan wilayah Semarang |
-| **Kondisi Tanaman/Fauna** | Sering tidak jelas | Tidak ada tag emersed/submersed/trimming | Tag kondisi standar & spesifik aquascape |
-| **Risiko Logistik** | Tinggi (tanpa panduan lokal) | Tinggi (pengiriman ekspedisi 3–5 hari) | **Same-day delivery & titik temu COD aman** |
-| **Keamanan Transaksi** | Rentan penipuan transfer | Ada escrow, tapi komisi tinggi (6–10%) | **OTP WhatsApp, Zero-Commission, Tautan Transaksi** |
-| **Keterikatan Komunitas** | Tersebar di banyak grup | Zero community engagement | **Forum & Marketplace dalam satu pintu** |
+| **Kesesuaian Produk Hidup** | Rendah (tidak ada filter) | Rendah (kurir ekspedisi berhari-hari) | **Sangat Tinggi (Same-day & COD lokal)** |
+| **Spesifikasi Teknis Hobi** | Postingan cepat tenggelam | Tidak ada tag bibit/trimming/tanaman | **Taksonomi khusus & tag terstandarisasi** |
+| **Keamanan Transaksi** | Sangat rentan penipuan transfer | Ada escrow, tapi komisi tinggi (6–10%) | **OTP WhatsApp, Zero-Commission, Tautan Transaksi** |
+| **Ruang Komunitas** | Banyak spam & tidak terstruktur | Tidak ada ruang komunitas | **Forum showcase & marketplace satu pintu** |
+| **Biaya Penjual** | Gratis tapi sepi buyer serius | Komisi memotong laba penjual kecil | **Langganan flat & terjangkau (Rp 40k/bln)** |
 
 ---
 
-### Slide 10: Tech Stack & Architecture (Kekuatan Teknologi)
-* **Headline:** Arsitektur Modern, Cepat, Skalabel, dan Hemat Biaya
-* **Frontend:** Next.js 16 (App Router, Turbopack, Tailwind CSS, Vercel Analytics) — Skor performa tinggi, akses cepat di perangkat mobile.
-* **Backend:** NestJS TypeScript (Modular Clean Architecture, Dependency Injection).
-* **Database Hybrid:**
-  * **PostgreSQL:** Manajemen akun, transaksi, kuota listing, ACID integrity.
-  * **MongoDB:** Dokumen forum diskusi, komentar, showcase foto berantai.
-* **Infrastruktur Cloud:**
-  * **Cloudinary Direct Signed Upload:** Unggah foto instan tanpa membebani server backend.
-  * **OTP.ID WhatsApp Gateway:** Autentikasi nomor telepon resmi dan hemat biaya.
-  * **Railway Platform:** Staging & production deployment otomatis dengan zero-downtime.
+### Slide 10: Fondasi Teknologi & Implementasi (Tech Stack)
+* **Headline:** Arsitektur Perangkat Lunak Skalabel & Standar Industri
+* **Frontend:** Next.js 16 (App Router, Turbopack, Tailwind CSS) — Dioptimalkan untuk kecepatan akses di smartphone.
+* **Backend:** NestJS TypeScript (Modular Architecture, RESTful API dengan OpenAPI documentation).
+* **Manajemen Database Hybrid:**
+  * **PostgreSQL:** Mengelola konsistensi ketat akun, kuota listing, kepemilikan toko, dan relasi transaksi (ACID).
+  * **MongoDB:** Menyimpan konten forum diskusi, komentar, dan showcase foto yang fleksibel.
+* **Layanan Cloud:** Cloudinary (optimasi foto otomatis), OTP.ID (gateway WhatsApp terpercaya), Railway (hosting server).
 
 ---
 
-### Slide 11: Roadmap & Milestone (Rencana Masa Depan)
-* **Q1 2026 (Tahap Saat Ini):** MVP Launch Semarang, aktivasi Aquaku Official Store, onboarding 10 toko lokal dan 100 listing pertama.
-* **Q2 2026:** Fitur *Tank Profile* (showcase spesifikasi alat & tanaman di akuarium) dan kalkulator dosis pupuk/CO2 terintegrasi.
-* **Q3 2026:** Ekspansi jangkauan ke Jawa Tengah (Solo, Yogya, Kudus) dan sistem escrow pembayaran otomatis via QRIS.
-* **Q4 2026:** Fitur Lelang Tanaman & Fauna Langka berbasis real-time serta peluncuran aplikasi mobile PWA.
+### Slide 11: Rencana Pengembangan & Metrik Keberhasilan (Milestones)
+* **Headline:** Rencana Bertahap Berdasarkan Validasi Pengguna
+* **Milestone 1 (Semester Ini - MVP Launch):**
+  * Peluncuran publik di Semarang.
+  * Target: 10 toko terdaftar, 50 hobiis aktif, 100 listing barang.
+  * Uji coba validitas *Willingness-to-Pay* untuk tier Toko berbayar.
+* **Milestone 2 (Fase Pertumbuhan 6 Bulan):**
+  * Integrasi fitur kalkulator dosis pupuk & profil akuarium (*tank profile*).
+  * Evaluasi umpan balik sistem COD dan integrasi escrow QRIS jika volume transaksi meningkat.
+* **Milestone 3 (Ekspansi Regional):**
+  * Perluasan jangkauan ke kota tetangga (Solo, Salatiga, Kudus, Yogyakarta).
 
 ---
 
-### Slide 12: Team & Closing Call to Action
-* **Headline:** Bergabung Membangun Masa Depan Hobi Aquascape Indonesia
-* **Call to Action:**
-  * Kunjungi demo platform: `https://aquaku-frontend.vercel.app` (atau domain staging)
-  * Uji coba transaksi & registrasi toko
-  * Terbuka untuk kemitraan toko, sponsor brand, dan mentoring technopreneurship.
-* **Kontak & Media Sosial:** Email tim, nomor WhatsApp resmi, link website.
+## 💬 3. Panduan Menjawab Pertanyaan Dosen / Juri (Q&A Defense)
+
+1. **"Mengapa membatasi skala hanya di Semarang, apakah pasarnya tidak terlalu sempit?"**
+   * *Jawaban:* Justru ini adalah strategi mitigasi risiko utama kami. Produk utama aquascape adalah tanaman air dan ikan hias yang memiliki batasan fisiologis (mudah mati jika dikirim ekspedisi antarkota 3–5 hari). Dengan memvalidasi model ini secara lokal di Semarang terlebih dahulu, kami memastikan kualitas barang tetap prima dan biaya operasional awal sangat rendah. Jika unit economics di Semarang terbukti berhasil, model ini sangat mudah direplikasi ke kota lain seperti Solo atau Surabaya.
+
+2. **"Apa bukti bahwa pemilik toko mau membayar biaya langganan Rp 40.000 per bulan?"**
+   * *Jawaban:* Di marketplace umum, toko dikenakan komisi 4%–10% per transaksi. Untuk transaksi senilai Rp 500.000 saja, potongan e-commerce sudah mencapai Rp 20.000–50.000 per pesanan. Dengan membayar biaya tetap Rp 40.000/bulan di Aquaku, toko dapat memasang hingga 30 listing tanpa potongan komisi sepeser pun dan langsung terhubung dengan calon pembeli terdekat via WhatsApp. Biaya ini jauh lebih hemat bagi penjual lokal.
+
+3. **"Bagaimana cara memastikan penjual tidak menipu pembeli saat COD?"**
+   * *Jawaban:* Semua penjual wajib memverifikasi nomor WhatsApp melalui OTP resmi. Selain itu, kami menerapkan sistem konfirmasi transaksi dua arah: penjual menautkan ID pembeli terverifikasi saat barang terjual, yang kemudian membuka akses bagi pembeli untuk memberikan ulasan rating. Penjual bermasalah akan langsung di-blacklist nomor HP dan akunnya oleh admin.
+
+4. **"Mengapa ada toko internal Aquaku Official?"**
+   * *Jawaban:* Toko internal berfungsi sebagai *Market Maker* untuk menyelesaikan masalah pasar sepi di awal (*cold-start problem*). Di hari pertama peluncuran, pembeli sudah bisa menemukan tanaman segar dan perlengkapan siap kirim tanpa harus menunggu penjual lain mengunggah barang. Status ini hanya dimiliki oleh 1 toko resmi dan dikunci manual di database agar tidak bisa disalahgunakan.
 
 ---
 
-## 🎨 3. Design System & Gaya Visual Presentasi
+## 🤖 4. Prompt Siap Pakai untuk AI Slide Generator (Canva / Gamma / PPT)
 
-Saat membuat desain slide (misal di Canva / Figma / PPT):
-
-* **Color Palette:**
-  * **Primary Brand:** Aquaku Emerald Green (`#16a34a` atau `#10b981`) — melambangkan kesegaran tanaman air dan alam.
-  * **Deep Background:** Dark Slate / Forest Dark (`#0a1410` atau `#0f172a`) — memberikan kesan modern, elegan, dan kontras tinggi.
-  * **Accent Color:** Amber Gold (`#f59e0b`) — khusus untuk badge Official Store, bintang rating, dan highlight prestasi.
-  * **Neutral Soft:** Pure White (`#ffffff`) dan Light Muted Surface (`#f1f5f9`).
-* **Tipografi:**
-  * **Heading:** *Plus Jakarta Sans* atau *Inter* (Font tegas, tebal, tech-forward).
-  * **Body:** *Inter* (Sangat mudah dibaca di layar proyektor maupun laptop).
-* **Gaya Grafis:**
-  * Hindari ilustrasi kartun generik.
-  * Gunakan foto asli tanaman aquascape yang jernih (*crystal clear water*, *anubias*, *rotala*, udang hias).
-  * Sertakan screenshot nyata dari UI web Aquaku (kartu produk dengan badge Official Store, forum diskusi, dan antarmuka profil).
-
----
-
-## 💬 4. Antisipasi Pertanyaan Juri / Investor (Q&A Cheat Sheet)
-
-1. **"Kenapa hobiis tidak tetap pakai Tokopedia atau Shopee saja?"**
-   * *Jawaban:* Marketplace raksasa didesain untuk barang mati (baju, elektronik). Tanaman aquascape dan ikan membutuhkan pengiriman same-day lokal agar tidak mati di jalan. Selain itu, marketplace umum tidak memiliki taksonomi khas hobi (seperti kondisi emersed/submersed, rimpang, atau trimmingan) dan tidak ada forum komunitas di dalamnya.
-2. **"Bagaimana cara Aquaku mencegah penipuan jika transaksi dilakukan via COD/WhatsApp?"**
-   * *Jawaban:* Setiap pengguna wajib memverifikasi nomor WhatsApp via OTP resmi. Di Aquaku, terdapat fitur tautan transaksi di mana penjual wajib memasukkan ID pembeli terverifikasi untuk mengonfirmasi penjualan dan membuka fitur rating. Penjual nakal akan langsung di-blacklist nomor HP dan akunnya. Selain itu, toko internal *Aquaku Official* hadir sebagai opsi 100% aman dan bergaransi.
-3. **"Apakah model bisnis tanpa komisi transaksi bisa menghasilkan keuntungan besar?"**
-   * *Jawaban:* Ya. Model komisi per transaksi pada produk murah (misal trimmingan Rp 15.000) justru mendorong penjual kabur ke WhatsApp untuk menghindari potongan. Dengan sistem langganan (membership Rp 40k–100k/bulan) dan add-on slot, Aquaku mendapatkan kepastian arus kas di muka (*predictable recurring revenue*) tanpa repot mengurusi retur barang.
-4. **"Bagaimana mengatasi masalah cold-start (pasar sepi di awal)?"**
-   * *Jawaban:* Kami langsung mengaktifkan *Aquaku Official Store* sebagai *market maker* internal dengan inventaris lengkap sejak hari pertama, serta menggandeng komunitas lokal Semarang yang sudah aktif di media sosial untuk berpindah etalase ke Aquaku.
-
----
-
-## 🤖 5. Prompt Template untuk Canva Agent / Presentation Builder
-
-Jika Anda ingin meminta AI membuatkan slide presentasi secara otomatis, gunakan instruksi berikut:
+Salin prompt di bawah ini ke Canva / Gamma / AI Agent:
 
 ```text
-Buatkan 11 slide presentasi pitching startup berdasarkan dokumen 'presentation-guide.md' untuk platform Aquaku (Marketplace & Komunitas Aquascape Indonesia). 
+Buatkan 11 slide presentasi pitch deck untuk tugas mata kuliah Technopreneurship mengenai platform startup "Aquaku" (Platform Komunitas & Marketplace Aquascape Lokal Semarang). 
 
-Gunakan format 16:9 widescreen, tema warna Nature Emerald Green (#16a34a) dipadukan dengan Slate Dark (#0a1410) dan aksen Amber (#f59e0b). 
+Desain visual: Rasio 16:9, warna dominan Nature Emerald Green (#16a34a), latar Slate Dark (#0a1410) yang kontras dan bersih, serta aksen Amber Gold (#f59e0b). Tampilan profesional, akademis, dan modern.
 
-Ikuti urutan slide berikut:
-Slide 1: Cover & Tagline "Rumah Bagi Hobiis Aquascape Indonesia"
-Slide 2: The Problem (Fragmentasi komunitas & transaksi produk hidup yang berisiko)
-Slide 3: The Solution (Aquaku: Dual-Engine Forum + Marketplace Terkurasi)
-Slide 4: Key Features (Katalog spesifik, WhatsApp direct, forum interaktif)
-Slide 5: The Trust Engine (Aquaku Official vs Verified Store vs Hobiis Terverifikasi)
-Slide 6: Market Opportunity (Peluang hobi aquascape Indonesia & fokus Semarang)
-Slide 7: Business Model (Zero-Commission, Membership Penjual, Add-on slot)
-Slide 8: Go-to-Market Strategy (Anchor seller lokal, event tukar trimmingan)
-Slide 9: Competitive Matrix (Facebook vs Marketplace Raksasa vs Aquaku)
-Slide 10: Technology & Progress (Next.js 16, NestJS, Postgres, Mongo, Cloudinary, Production Staging)
-Slide 11: Roadmap & Closing Call to Action
+Struktur slide (gunakan data konkret dan realistis sesuai panduan):
+1. Cover: Aquaku - Ekosistem Terpadu Komunitas & Marketplace Aquascape (Pilot Semarang)
+2. The Problem: 3 kendala utama hobiis (Diskusi vs transaksi terpisah, risiko tanaman busuk di ekspedisi biasa, dan penipuan di medsos)
+3. The Solution: Dual-engine platform (Katalog spesifik aquascape, logistik same-day/COD lokal Semarang, dan verifikasi OTP)
+4. Core Product Features: Marketplace dengan tag kondisi hobi, tombol direct WhatsApp, forum diskusi, dan shop manager
+5. Trust Architecture: Pembeda jelas antara Aquaku Official (1 toko resmi internal), Verified Store, dan Hobiis Personal
+6. Market Sizing (Bottom-Up): Analisis captive market nyata di Semarang (30-50 toko fisik, komunitas 3.000-5.000 orang, target MVP 5-10 toko dan 50 hobiis)
+7. Financial Feasibility & BEP: Biaya operasional lean mahasiswa (Rp 175k-325k/bln) vs potensi pemasukan (Rp 760k-960k/bln) dengan BEP hanya 4-5 toko berlangganan
+8. Go-to-Market Strategy: Validasi toko lokal Semarang, promosi komunitas Facebook, event tukar trimmingan offline
+9. Competitor Matrix: Perbandingan tabel Aquaku vs Grup Medsos vs E-Commerce Raksasa
+10. Tech Stack: Next.js 16, NestJS, Postgres + Mongo hybrid, Cloudinary, status MVP siap staging
+11. Milestones: Rencana bertahap Semester ini (MVP) -> Evaluasi 6 bulan -> Ekspansi regional
 
-Tampilkan informasi dengan poin-poin ringkas, kartu visual yang rapi, dan hindari teks yang terlalu padat.
+Pastikan tidak ada klaim triliunan yang tidak masuk akal; fokus pada data terukur, kelayakan akademis, dan pembuktian Problem-Solution Fit.
 ```
