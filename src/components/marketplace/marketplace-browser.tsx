@@ -96,8 +96,13 @@ function MarketplaceResults({
               sellerInitials: (l.seller?.display_name || "H")
                 .slice(0, 2)
                 .toUpperCase(),
-              sellerTier: l.seller?.tier === "personal" ? "Personal" : "Toko",
-              verified: !!l.seller?.verified_store,
+              sellerTier: l.seller?.official_store
+                ? "Official Store"
+                : l.seller?.tier === "personal"
+                ? "Personal"
+                : "Toko",
+              verified: !!l.seller?.verified_store || !!l.seller?.official_store,
+              official: !!l.seller?.official_store || !!l.seller?.shop?.is_official,
               district: l.region?.district || "Semarang",
               delivery: "COD / meetup",
               description: l.description,

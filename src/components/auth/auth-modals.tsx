@@ -468,17 +468,22 @@ export function AuthModals() {
                 {user.display_name.slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <h2 className="truncate text-lg font-bold">
                     {user.display_name}
                   </h2>
-                  {user.verified_store && (
+                  {user.official_store ? (
+                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-400 border border-emerald-500/20">
+                      <ShieldCheck size={12} className="text-emerald-600 dark:text-emerald-400" />
+                      Official Store
+                    </span>
+                  ) : user.verified_store ? (
                     <BadgeCheck
                       size={18}
                       className="shrink-0 text-brand"
                       aria-label="Toko Terverifikasi"
                     />
-                  )}
+                  ) : null}
                 </div>
                 <p className="truncate text-xs text-muted">{user.email}</p>
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">

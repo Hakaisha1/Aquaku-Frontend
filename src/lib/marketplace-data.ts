@@ -44,8 +44,9 @@ export type Product = {
   condition: string;
   seller: string;
   sellerInitials: string;
-  sellerTier: "Personal" | "Toko";
+  sellerTier: "Personal" | "Toko" | "Official Store";
   verified: boolean;
+  official?: boolean;
   district: string;
   delivery: "COD & kurir instan" | "COD / meetup";
   description: string;

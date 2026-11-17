@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, MapPin } from "lucide-react";
+import { BadgeCheck, MapPin, ShieldCheck } from "lucide-react";
 import { formatRupiah, type Product } from "@/lib/marketplace-data";
 import { SaveProductButton } from "./saved-products";
 
@@ -52,16 +52,21 @@ export function ProductCard({
           <MapPin size={12} aria-hidden="true" />
           {product.district}
         </p>
-        <p className="mt-1.5 flex items-center gap-1 truncate text-[11px] font-medium text-muted">
-          {product.verified ? (
+        <div className="mt-1.5 flex items-center gap-1.5 truncate text-[11px] font-medium text-muted">
+          {product.official ? (
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-400 border border-emerald-500/20">
+              <ShieldCheck size={11} className="text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+              Official
+            </span>
+          ) : product.verified ? (
             <BadgeCheck
               size={13}
-              className="text-brand"
+              className="shrink-0 text-brand"
               aria-label="Toko Terverifikasi"
             />
           ) : null}
           <span className="truncate">{product.seller}</span>
-        </p>
+        </div>
       </div>
     </article>
   );

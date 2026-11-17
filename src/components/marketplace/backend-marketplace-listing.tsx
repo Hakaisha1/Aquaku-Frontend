@@ -270,11 +270,15 @@ export function BackendMarketplaceListing({
 
   const sellerName = listing.seller?.display_name || "Penjual Aquaku";
   const sellerInitials = sellerName.slice(0, 2).toUpperCase();
-  const isVerified = Boolean(listing.seller?.verified_store);
-  const sellerTier =
-    listing.seller?.tier === "toko" || listing.seller?.tier === "juragan"
-      ? "Toko"
-      : "Personal";
+  const isOfficial = Boolean(
+    listing.seller?.official_store || listing.seller?.shop?.is_official,
+  );
+  const isVerified = Boolean(listing.seller?.verified_store || isOfficial);
+  const sellerTier = isOfficial
+    ? "Official Store"
+    : listing.seller?.tier === "toko" || listing.seller?.tier === "juragan"
+    ? "Toko"
+    : "Personal";
 
   const condLower = (listing.condition || "").toLowerCase();
   const conditionText =
@@ -370,24 +374,46 @@ export function BackendMarketplaceListing({
           <div className="my-6 border-t border-border" />
 
           {/* Seller Profile Card */}
-          <section aria-label="Penjual" className="panel p-4">
+          <section
+            aria-label="Penjual"
+            className={`panel p-4 transition-colors ${
+              isOfficial
+                ? "border-emerald-500/30 bg-emerald-500/[0.03] dark:border-emerald-500/25 dark:bg-emerald-500/[0.04]"
+                : ""
+            }`}
+          >
             <div className="flex items-center gap-3">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-soft text-sm font-extrabold text-brand">
+              <span
+                className={`flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-extrabold ${
+                  isOfficial
+                    ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                    : "bg-soft text-brand"
+                }`}
+              >
                 {sellerInitials}
               </span>
               <div className="min-w-0 flex-1">
-                <h2 className="flex items-center gap-1.5 text-sm font-bold">
-                  {sellerName}
-                  {isVerified && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <h2 className="text-sm font-bold truncate">
+                    {sellerName}
+                  </h2>
+                  {isOfficial ? (
+                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-400 border border-emerald-500/20">
+                      <ShieldCheck size={12} className="text-emerald-600 dark:text-emerald-400" />
+                      Official Store
+                    </span>
+                  ) : isVerified ? (
                     <BadgeCheck
                       size={16}
-                      className="text-brand"
+                      className="text-brand shrink-0"
                       aria-label="Toko terverifikasi"
                     />
-                  )}
-                </h2>
+                  ) : null}
+                </div>
                 <p className="mt-1 text-[11px] text-muted">
-                  {sellerTier === "Toko"
+                  {isOfficial
+                    ? "Toko Resmi Internal Aquaku • Jaminan Kualitas & Transaksi Aman"
+                    : sellerTier === "Toko"
                     ? "Toko terverifikasi"
                     : "Hobiis Personal"}
                 </p>

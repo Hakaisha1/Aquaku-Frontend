@@ -13,6 +13,7 @@ export type UserProfile = {
   tier: UserTier;
   tier_expires_at: string | null;
   verified_store: boolean;
+  official_store?: boolean;
   role: UserRole;
   created_at: string;
 };
@@ -23,6 +24,7 @@ export type PublicProfile = {
   avatar_url: string | null;
   tier: UserTier;
   verified_store: boolean;
+  official_store?: boolean;
   created_at: string;
   rating_average: number | null;
   rating_count: number;
@@ -85,6 +87,8 @@ export type ListingSeller = {
   avatar_url: string | null;
   tier: UserTier;
   verified_store: boolean;
+  official_store?: boolean;
+  shop?: { id: string; name: string; is_official?: boolean } | null;
   rating_average?: number | null;
   rating_count?: number;
   whatsapp_url?: string | null;
