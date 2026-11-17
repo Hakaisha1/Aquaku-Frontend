@@ -120,7 +120,11 @@ export function BackendForumThread({ postId }: { postId: string }) {
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!confirm("Hapus komentar ini?")) return;
+    const isCommentOwner = comments.find((c) => c.id === commentId)?.author?.id === user?.id;
+    const confirmMsg = !isCommentOwner && user?.role === "admin"
+      ? "Hapus komentar ini sebagai Moderator?"
+      : "Hapus komentar ini?";
+    if (!confirm(confirmMsg)) return;
     try {
       await api.deleteForumComment(postId, commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
@@ -133,7 +137,10 @@ export function BackendForumThread({ postId }: { postId: string }) {
   };
 
   const handleDeletePost = async () => {
-    if (!confirm("Yakin ingin menghapus diskusi ini secara permanen?")) return;
+    const confirmMsg = post?.author?.id !== user?.id && user?.role === "admin"
+      ? "Hapus diskusi ini sebagai Moderator?"
+      : "Yakin ingin menghapus diskusi ini secara permanen?";
+    if (!confirm(confirmMsg)) return;
     setDeleting(true);
     try {
       await api.deleteForumPost(postId);
@@ -200,6 +207,8 @@ export function BackendForumThread({ postId }: { postId: string }) {
   }
 
   const isOwner = user && post.author && user.id === post.author.id;
+  const isAdmin = user?.role === "admin";
+  const canDeletePost = isOwner || isAdmin;
   const authorName = post.author?.display_name || "Anggota Komunitas";
   const authorInitials = authorName.slice(0, 2).toUpperCase();
 
@@ -229,16 +238,16 @@ export function BackendForumThread({ postId }: { postId: string }) {
               </span>
 
               <div className="flex items-center gap-2">
-                {isOwner && (
+                {canDeletePost && (
                   <button
                     type="button"
                     onClick={handleDeletePost}
                     disabled={deleting}
                     className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-500/10 dark:text-red-400"
-                    title="Hapus diskusi ini"
+                    title={isAdmin && !isOwner ? "Hapus diskusi sebagai Moderator" : "Hapus diskusi ini"}
                   >
                     <Trash2 size={14} />
-                    <span>Hapus</span>
+                    <span>{isAdmin && !isOwner ? "Hapus (Moderator)" : "Hapus"}</span>
                   </button>
                 )}
                 <button
@@ -388,6 +397,7 @@ export function BackendForumThread({ postId }: { postId: string }) {
                   const cAuthor = comment.author?.display_name || "Anggota";
                   const cInitials = cAuthor.slice(0, 2).toUpperCase();
                   const isCommentOwner = user && comment.author && user.id === comment.author.id;
+                  const canDeleteComment = isCommentOwner || isAdmin;
                   const cTime = new Date(comment.created_at).toLocaleDateString("id-ID", {
                     day: "numeric",
                     month: "short",
@@ -408,14 +418,19 @@ export function BackendForumThread({ postId }: { postId: string }) {
                           <span className="text-[11px] text-muted">{cTime}</span>
                         </div>
 
-                        {isCommentOwner && (
+                        {canDeleteComment && (
                           <button
                             type="button"
                             onClick={() => handleDeleteComment(comment.id)}
-                            className="text-muted hover:text-red-600 dark:hover:text-red-400"
-                            title="Hapus komentar"
+                            className="inline-flex items-center gap-1 text-muted hover:text-red-600 dark:hover:text-red-400"
+                            title={isAdmin && !isCommentOwner ? "Hapus komentar sebagai Moderator" : "Hapus komentar"}
                           >
                             <Trash2 size={13} />
+                            {isAdmin && !isCommentOwner && (
+                              <span className="text-[10px] font-semibold text-red-600 dark:text-red-400">
+                                Moderator
+                              </span>
+                            )}
                           </button>
                         )}
                       </div>

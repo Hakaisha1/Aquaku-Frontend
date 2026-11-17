@@ -302,6 +302,7 @@ export type ForumUploadSignature = {
   upload_preset: string;
   overwrite: string;
   signature: string;
+  resource_type?: string;
 };
 
 export type ForumMediaAsset = {
@@ -323,7 +324,10 @@ export type MarketplaceUploadSignature = {
   upload_preset: string;
   overwrite: string;
   signature: string;
+  resource_type?: string;
 };
+
+export type AddonKind = "SLOT_ADDON" | "COOLDOWN_BYPASS";
 
 export type MarketplaceMediaAsset = {
   id: string;

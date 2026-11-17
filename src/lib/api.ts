@@ -161,7 +161,10 @@ export async function apiRequest<T>(
 
   if (!res.ok) {
     let code = `HTTP_${res.status}`;
-    let message = `Permintaan gagal dengan status ${res.status}`;
+    let message =
+      res.status === 429
+        ? "Terlalu banyak permintaan dalam waktu singkat. Harap tunggu 1 menit sebelum mencoba kembali."
+        : `Permintaan gagal dengan status ${res.status}`;
     let details: unknown = undefined;
     try {
       const errorJson: ApiErrorResponse = await res.json();
@@ -193,6 +196,11 @@ export async function apiRequest<T>(
     } catch {
       // response is not json
     }
+
+    if (res.status === 429 && code !== "TOO_MANY_REQUESTS") {
+      code = "TOO_MANY_REQUESTS";
+    }
+
     throw new ApiError(res.status, code, message, details);
   }
 
@@ -263,7 +271,18 @@ export const api = {
     return data;
   },
 
-  logout(): void {
+  async logout(): Promise<void> {
+    const tokens = getStoredTokens();
+    if (tokens?.refresh_token) {
+      try {
+        await apiRequest<{ success: boolean }>("/auth/logout", {
+          method: "POST",
+          body: JSON.stringify({ refreshToken: tokens.refresh_token }),
+        });
+      } catch {
+        // Abaikan error server saat logout agar token lokal tetap bersih
+      }
+    }
     setStoredTokens(null);
   },
 
@@ -663,13 +682,24 @@ export const api = {
   async confirmMarketplaceUpload(
     asset_id: string,
   ): Promise<MarketplaceMediaAsset> {
-    return apiRequest<MarketplaceMediaAsset>(
-      "/marketplace/media/confirm-upload",
-      {
-        method: "POST",
-        body: JSON.stringify({ asset_id }),
-      },
-    );
+    try {
+      return await apiRequest<MarketplaceMediaAsset>(
+        "/marketplace/media/confirm-upload",
+        {
+          method: "POST",
+          body: JSON.stringify({ asset_id }),
+        },
+      );
+    } catch (err: unknown) {
+      if (err instanceof ApiError && err.status === 404) {
+        throw new ApiError(
+          404,
+          "MEDIA_NOT_FOUND",
+          "Foto gagal diunggah atau tidak ditemukan di cloud storage. Silakan pilih foto kembali.",
+        );
+      }
+      throw err;
+    }
   },
 
   async uploadListingPhoto(file: File): Promise<MarketplaceMediaAsset> {
@@ -692,6 +722,9 @@ export const api = {
     formData.append("upload_preset", sig.upload_preset);
     formData.append("overwrite", String(sig.overwrite));
     formData.append("signature", sig.signature);
+    if (sig.resource_type) {
+      formData.append("resource_type", sig.resource_type);
+    }
 
     const uploadRes = await fetch(
       `https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`,
@@ -731,10 +764,21 @@ export const api = {
   },
 
   async confirmForumUpload(asset_id: string): Promise<ForumMediaAsset> {
-    return apiRequest<ForumMediaAsset>("/forum/media/confirm-upload", {
-      method: "POST",
-      body: JSON.stringify({ asset_id }),
-    });
+    try {
+      return await apiRequest<ForumMediaAsset>("/forum/media/confirm-upload", {
+        method: "POST",
+        body: JSON.stringify({ asset_id }),
+      });
+    } catch (err: unknown) {
+      if (err instanceof ApiError && err.status === 404) {
+        throw new ApiError(
+          404,
+          "MEDIA_NOT_FOUND",
+          "Foto gagal diunggah atau tidak ditemukan di cloud storage. Silakan pilih foto kembali.",
+        );
+      }
+      throw err;
+    }
   },
 
   async uploadForumPhoto(file: File): Promise<ForumMediaAsset> {
@@ -757,6 +801,9 @@ export const api = {
     formData.append("upload_preset", sig.upload_preset);
     formData.append("overwrite", String(sig.overwrite));
     formData.append("signature", sig.signature);
+    if (sig.resource_type) {
+      formData.append("resource_type", sig.resource_type);
+    }
 
     const uploadRes = await fetch(
       `https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`,

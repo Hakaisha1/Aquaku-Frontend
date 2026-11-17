@@ -49,7 +49,7 @@ type AuthContextType = {
   }) => Promise<string | undefined>;
   verifyPhone: (code: string) => Promise<void>;
   resendOtp: () => Promise<string | undefined>;
-  logout: () => void;
+  logout: () => void | Promise<void>;
   refreshUser: () => Promise<void>;
   refreshQuota: () => Promise<void>;
 };
@@ -210,11 +210,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return res?.development_otp;
   };
 
-  const logout = () => {
-    api.logout();
-    setUser(null);
-    setQuota(null);
-    closeAccountModal();
+  const logout = async () => {
+    try {
+      await api.logout();
+    } finally {
+      setUser(null);
+      setQuota(null);
+      closeAccountModal();
+    }
   };
 
   return (
