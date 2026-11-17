@@ -23,6 +23,7 @@ import type {
   Report,
   ReportReason,
   SaleTransaction,
+  Shop,
   Taxonomy,
   TokenPair,
   UserProfile,
@@ -506,6 +507,37 @@ export const api = {
 
   async getBenefitRequests(): Promise<BenefitRequest[]> {
     return apiRequest<BenefitRequest[]>("/marketplace/me/benefit-requests");
+  },
+
+  // Shop
+  async getMyShop(): Promise<Shop | null> {
+    try {
+      return await apiRequest<Shop>("/marketplace/shops/me");
+    } catch (err: unknown) {
+      if (err instanceof ApiError && err.status === 404) {
+        return null;
+      }
+      throw err;
+    }
+  },
+
+  async createShop(input: {
+    name: string;
+    description?: string;
+  }): Promise<Shop> {
+    return apiRequest<Shop>("/marketplace/shops", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async requestShopVerification(): Promise<BenefitRequest> {
+    return apiRequest<BenefitRequest>(
+      "/marketplace/me/shops/verification-requests",
+      {
+        method: "POST",
+      },
+    );
   },
 
   async requestMembership(formData: FormData): Promise<BenefitRequest> {

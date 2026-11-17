@@ -143,6 +143,16 @@ export type Quota = {
   may_list_with_cooldown_pass: boolean;
 };
 
+export type Shop = {
+  id: string;
+  name: string;
+  description: string | null;
+  verification_status: "unverified" | "pending" | "verified" | "rejected";
+  is_official: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type SaleStatus =
   | "awaiting_confirmation"
   | "confirmed"

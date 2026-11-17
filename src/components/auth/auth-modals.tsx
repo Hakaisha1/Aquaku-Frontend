@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { ApiError } from "@/lib/api";
+import { ShopManager } from "@/components/marketplace/shop-manager";
 
 export function AuthModals() {
   const {
@@ -509,6 +510,15 @@ export function AuthModals() {
                 </div>
               </div>
             </div>
+
+            {/* Shop Profile & Creation Manager */}
+            <ShopManager
+              user={user}
+              openPhoneVerifyModal={() => {
+                closeAccountModal();
+                openPhoneVerifyModal();
+              }}
+            />
 
             {/* Ganti Nama yang Ditampilkan (Display Name) */}
             <div className="my-3 rounded-xl border border-border bg-canvas p-4">
