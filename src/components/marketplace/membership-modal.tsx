@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   AlertCircle,
   Building2,
   CheckCircle2,
   Clock,
+  CreditCard,
   Crown,
+  ExternalLink,
   FileCheck,
   History,
   Layers,
   Loader2,
+  QrCode,
   ShieldCheck,
   Sparkles,
   Store,
@@ -22,10 +26,127 @@ import { useAuth } from "@/context/auth-context";
 import { api, ApiError } from "@/lib/api";
 import type { AddonKind, BenefitRequest, MembershipPlan } from "@/types/api";
 
+function PaymentMethodSection({
+  paymentMethod,
+  setPaymentMethod,
+  amount,
+  label,
+}: {
+  paymentMethod: "qris" | "transfer";
+  setPaymentMethod: (method: "qris" | "transfer") => void;
+  amount: string;
+  label: string;
+}) {
+  return (
+    <div className="mt-5 rounded-2xl border border-border bg-canvas p-4 sm:p-5">
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+          <CreditCard size={15} className="text-brand" />
+          Metode Pembayaran Resmi Aquaku
+        </span>
+        <span className="text-[10px] text-muted">{label}</span>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => setPaymentMethod("qris")}
+          className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition-all ${
+            paymentMethod === "qris"
+              ? "border-brand bg-brand/10 text-brand shadow-xs ring-1 ring-brand"
+              : "border-border bg-surface text-muted hover:border-brand/40"
+          }`}
+        >
+          <QrCode size={15} />
+          <span>QRIS (Semua Bank / E-Wallet)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setPaymentMethod("transfer")}
+          className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition-all ${
+            paymentMethod === "transfer"
+              ? "border-brand bg-brand/10 text-brand shadow-xs ring-1 ring-brand"
+              : "border-border bg-surface text-muted hover:border-brand/40"
+          }`}
+        >
+          <Building2 size={15} />
+          <span>Transfer Bank (BCA)</span>
+        </button>
+      </div>
+
+      {paymentMethod === "qris" ? (
+        <div className="mt-4 flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-border bg-surface p-3.5">
+          <div className="flex shrink-0 flex-col items-center rounded-lg border border-border bg-white p-2 shadow-xs">
+            <Image
+              src="/images/qris-payment.jpg"
+              alt="QRIS Pembayaran Resmi Aquaku - RYAN DI JASTIP"
+              width={140}
+              height={195}
+              className="rounded object-contain"
+            />
+            <a
+              href="/images/qris-payment.jpg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-brand hover:underline"
+            >
+              <ExternalLink size={11} /> Buka / Simpan QRIS
+            </a>
+          </div>
+
+          <div className="flex-1 space-y-2 text-xs">
+            <div>
+              <span className="inline-block rounded-md bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand uppercase">
+                QRIS Standar Pembayaran Nasional (GPN)
+              </span>
+              <h4 className="mt-1 text-sm font-bold text-foreground">
+                RYAN DI JASTIP
+              </h4>
+              <p className="text-[11px] font-mono text-muted">
+                NMID: ID1025455962379
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-soft p-2.5">
+              <span className="text-[10px] text-muted">Total Pembayaran:</span>
+              <p className="text-base font-extrabold text-brand font-mono">
+                {amount}
+              </p>
+            </div>
+
+            <ul className="space-y-1 text-[11px] leading-relaxed text-muted">
+              <li>✓ Mendukung GoPay, BCA Mobile, Livin Mandiri, BRImo, BNI, Dana, OVO, & semua mobile banking.</li>
+              <li>✓ Scan QRIS langsung atau simpan QRIS untuk diunggah lewat galeri m-banking.</li>
+              <li>✓ Masukkan nominal transfer tepat <strong>{amount}</strong>.</li>
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-4 rounded-xl border border-border bg-surface p-3.5 text-xs">
+          <p className="font-bold text-foreground">Rekening Tujuan Transfer Manual:</p>
+          <div className="mt-2 space-y-1 font-mono text-muted">
+            <p>
+              Bank BCA: <strong className="text-foreground">123-456-7890</strong> a/n Aquaku Marketplace
+            </p>
+            <p>
+              Total Transfer: <strong className="text-brand font-bold">{amount}</strong>
+            </p>
+          </div>
+          <p className="mt-2 text-[11px] text-muted">
+            Setelah transfer berhasil, unggah bukti transfer/struk di bawah.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function MembershipModal() {
   const { isMembershipModalOpen, closeMembershipModal, user, quota } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"membership" | "addon">("membership");
+  const [paymentMethod, setPaymentMethod] = useState<"qris" | "transfer">("qris");
 
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [requests, setRequests] = useState<BenefitRequest[]>([]);
@@ -319,21 +440,13 @@ export function MembershipModal() {
               </div>
             </div>
 
-            {/* Transfer instructions */}
-            <div className="mt-5 rounded-xl border border-border bg-canvas p-4 text-xs">
-              <p className="font-bold text-foreground">Metode Pembayaran Manual Transfer:</p>
-              <div className="mt-2 space-y-1 text-muted font-mono">
-                <p>Bank BCA: <strong>123-456-7890</strong> a/n Aquaku Marketplace</p>
-                <p>
-                  Nominal Transfer:{" "}
-                  <strong>{selectedTier === "toko" ? "Rp40.000" : "Rp100.000"}</strong>
-                </p>
-              </div>
-              <p className="mt-2 text-[11px] text-muted leading-4">
-                * Unggah bukti transfer di bawah. Pengajuan akan diproses oleh admin
-                maksimal 1x24 jam kerja.
-              </p>
-            </div>
+            {/* Payment Method Section */}
+            <PaymentMethodSection
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+              amount={selectedTier === "toko" ? "Rp 40.000" : "Rp 100.000"}
+              label={`Upgrade Membership ${selectedTier === "toko" ? "Toko" : "Juragan"}`}
+            />
 
             {/* Form Upload Membership */}
             <form onSubmit={handleMembershipSubmit} className="mt-5 space-y-4">
@@ -342,7 +455,7 @@ export function MembershipModal() {
                   htmlFor="proof-upload-membership"
                   className="mb-1 block text-xs font-semibold text-muted"
                 >
-                  Unggah Bukti Transfer (JPG, PNG, atau PDF) *
+                  Unggah Bukti Pembayaran QRIS / Transfer (JPG, PNG, atau PDF) *
                 </label>
                 <input
                   id="proof-upload-membership"
@@ -472,12 +585,13 @@ export function MembershipModal() {
                 </div>
               </div>
 
-              {/* Transfer info */}
-              <div className="rounded-xl border border-border bg-surface p-3.5 text-xs text-muted font-mono">
-                <p className="font-bold text-foreground font-sans">Rekening Tujuan Transfer:</p>
-                <p className="mt-1">Bank BCA: <strong>123-456-7890</strong> a/n Aquaku Marketplace</p>
-                <p>Total Bayar: <strong className="text-foreground">Rp {calculatedAddonAmount.toLocaleString("id-ID")}</strong></p>
-              </div>
+              {/* Payment Method Section */}
+              <PaymentMethodSection
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+                amount={`Rp ${calculatedAddonAmount.toLocaleString("id-ID")}`}
+                label={addonKind === "SLOT_ADDON" ? "Add-on Kuota Slot" : "Cooldown Bypass Pass"}
+              />
 
               {/* Bukti Transfer */}
               <div>
@@ -485,7 +599,7 @@ export function MembershipModal() {
                   htmlFor="proof-upload-addon"
                   className="mb-1 block text-xs font-semibold text-muted"
                 >
-                  Unggah Bukti Transfer Pembayaran (JPG, PNG, atau PDF) *
+                  Unggah Bukti Pembayaran QRIS / Transfer (JPG, PNG, atau PDF) *
                 </label>
                 <input
                   id="proof-upload-addon"

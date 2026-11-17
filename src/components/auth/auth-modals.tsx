@@ -5,13 +5,17 @@ import {
   AlertCircle,
   ArrowLeft,
   BadgeCheck,
+  Check,
   CheckCircle2,
   Clock,
+  Copy,
+  Hash,
   Phone,
   ReceiptText,
   Send,
   ShieldCheck,
   Sparkles,
+  User,
   UserCheck,
   X,
   LogOut,
@@ -36,6 +40,7 @@ export function AuthModals() {
     openMembershipModal,
     openTransactionsModal,
     updateWhatsAppNumber,
+    updateDisplayName,
   } = useAuth();
 
   // OTP form & on-demand state
@@ -51,6 +56,13 @@ export function AuthModals() {
   const [savingWa, setSavingWa] = useState(false);
   const [waSavedMsg, setWaSavedMsg] = useState<string | null>(null);
 
+  // Display Name editing & Account ID state
+  const [displayNameInput, setDisplayNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameSuccessMsg, setNameSuccessMsg] = useState<string | null>(null);
+  const [nameErrorMsg, setNameErrorMsg] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState(false);
+
   useEffect(() => {
     if (isAccountModalOpen && typeof window !== "undefined") {
       const stored =
@@ -61,7 +73,51 @@ export function AuthModals() {
       setWaInput(stored);
       setWaSavedMsg(null);
     }
+    if (isAccountModalOpen && user) {
+      setDisplayNameInput(user.display_name || "");
+      setNameSuccessMsg(null);
+      setNameErrorMsg(null);
+      setCopiedId(false);
+    }
   }, [isAccountModalOpen, user]);
+
+  const handleSaveDisplayName = async () => {
+    const trimmed = displayNameInput.trim();
+    if (!trimmed) {
+      setNameErrorMsg("Nama yang ditampilkan tidak boleh kosong.");
+      return;
+    }
+    if (trimmed.length > 80) {
+      setNameErrorMsg("Nama maksimal 80 karakter.");
+      return;
+    }
+    setSavingName(true);
+    setNameSuccessMsg(null);
+    setNameErrorMsg(null);
+    try {
+      await updateDisplayName(trimmed);
+      setNameSuccessMsg("Nama tampilan berhasil diperbarui!");
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setNameErrorMsg(err.message);
+      } else {
+        setNameErrorMsg("Gagal memperbarui nama tampilan.");
+      }
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const handleCopyUserId = async () => {
+    if (!user?.id) return;
+    try {
+      await navigator.clipboard.writeText(user.id);
+      setCopiedId(true);
+      setTimeout(() => setCopiedId(false), 2000);
+    } catch {
+      // Fallback
+    }
+  };
 
   const handleSaveWa = async () => {
     if (!waInput.trim()) return;
@@ -397,7 +453,7 @@ export function AuthModals() {
             if (e.target === e.currentTarget) closeAccountModal();
           }}
         >
-          <div className="modal-panel-animate relative w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-2xl sm:p-7">
+          <div className="modal-panel-animate relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-border bg-surface p-6 shadow-2xl sm:p-7">
             <button
               onClick={closeAccountModal}
               className="icon-button absolute right-4 top-4"
@@ -446,6 +502,94 @@ export function AuthModals() {
                     </button>
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* Ganti Nama yang Ditampilkan (Display Name) */}
+            <div className="my-3 rounded-xl border border-border bg-canvas p-4">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                  <User size={14} className="text-brand" />
+                  Nama yang Ditampilkan
+                </span>
+                <span className="text-[10px] text-muted">Maks. 80 karakter</span>
+              </div>
+              <p className="mt-1 text-[11px] leading-5 text-muted">
+                Ubah nama tampilan akun kamu. Nama ini yang akan dilihat oleh pengguna lain di marketplace dan forum diskusi.
+              </p>
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="text"
+                  maxLength={80}
+                  placeholder="Masukkan nama tampilan kamu"
+                  value={displayNameInput}
+                  onChange={(e) => {
+                    setDisplayNameInput(e.target.value);
+                    setNameSuccessMsg(null);
+                    setNameErrorMsg(null);
+                  }}
+                  className="field flex-1 py-1.5 text-xs"
+                />
+                <button
+                  type="button"
+                  disabled={
+                    savingName ||
+                    !displayNameInput.trim() ||
+                    displayNameInput.trim() === user.display_name
+                  }
+                  onClick={handleSaveDisplayName}
+                  className="button-primary min-h-9 shrink-0 px-3.5 py-1.5 text-xs"
+                >
+                  {savingName ? "Menyimpan…" : "Simpan Nama"}
+                </button>
+              </div>
+              {nameSuccessMsg && (
+                <p className="mt-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  {nameSuccessMsg}
+                </p>
+              )}
+              {nameErrorMsg && (
+                <p className="mt-2 text-[11px] font-semibold text-red-500">
+                  {nameErrorMsg}
+                </p>
+              )}
+            </div>
+
+            {/* Info Username & ID Pengguna (UUID) */}
+            <div className="my-3 rounded-xl border border-border bg-canvas p-4">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                  <Hash size={14} className="text-brand" />
+                  ID Akun Pengguna (User ID)
+                </span>
+                <span className="text-[10px] text-muted">UUID Unik</span>
+              </div>
+              <p className="mt-1 text-[11px] leading-5 text-muted">
+                Salin kode ID ini dan berikan ke penjual saat kamu membeli barang agar penjual dapat menautkan transaksi ke akunmu untuk konfirmasi dan ulasan rating.
+              </p>
+              <div className="mt-2.5 flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs">
+                <span className="truncate select-all text-foreground">{user.id}</span>
+                <button
+                  type="button"
+                  onClick={handleCopyUserId}
+                  className="button-secondary min-h-7 shrink-0 px-2.5 py-1 text-[11px] font-sans flex items-center gap-1"
+                >
+                  {copiedId ? (
+                    <>
+                      <Check size={12} className="text-brand" />
+                      <span className="text-brand font-bold">Tersalin!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={12} />
+                      <span>Salin ID</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="mt-3 flex items-center justify-between border-t border-border pt-2.5 text-[11px] text-muted">
+                <span>Username / Email Akun:</span>
+                <span className="font-semibold text-foreground">{user.email}</span>
               </div>
             </div>
 

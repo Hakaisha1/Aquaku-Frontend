@@ -53,6 +53,7 @@ type AuthContextType = {
   refreshUser: () => Promise<void>;
   refreshQuota: () => Promise<void>;
   updateWhatsAppNumber: (phone: string) => Promise<void>;
+  updateDisplayName: (name: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -176,6 +177,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updated);
   };
 
+  const updateDisplayName = async (name: string) => {
+    const updated = await api.updateMe({ display_name: name.trim() });
+    setUser(updated);
+  };
+
   const login = async (credentials: { email: string; password: string }) => {
     const pair = await api.login(credentials);
     setUser(pair.user);
@@ -281,6 +287,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshUser,
         refreshQuota,
         updateWhatsAppNumber,
+        updateDisplayName,
       }}
     >
       {children}
