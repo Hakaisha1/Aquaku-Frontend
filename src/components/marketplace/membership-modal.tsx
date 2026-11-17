@@ -80,7 +80,7 @@ function PaymentMethodSection({
           <div className="flex shrink-0 flex-col items-center rounded-lg border border-border bg-white p-2 shadow-xs">
             <Image
               src="/images/qris-payment.jpg"
-              alt="QRIS Pembayaran Resmi Aquaku - RYAN DI JASTIP"
+              alt="QRIS Pembayaran Resmi Aquaku"
               width={140}
               height={195}
               className="rounded object-contain"
@@ -101,7 +101,7 @@ function PaymentMethodSection({
                 QRIS Standar Pembayaran Nasional (GPN)
               </span>
               <h4 className="mt-1 text-sm font-bold text-foreground">
-                RYAN DI JASTIP
+                AQUAKU OFFICIAL
               </h4>
               <p className="text-[11px] font-mono text-muted">
                 NMID: ID1025455962379

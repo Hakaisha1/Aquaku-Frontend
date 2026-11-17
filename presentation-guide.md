@@ -11,7 +11,7 @@
 * **Kategori:** *Niche Vertical Community & Local Marketplace*
 * **Status Saat Ini:** **Fungsional MVP (Production-Ready Staging)** — Backend & Frontend terintegrasi penuh (Next.js 16 + NestJS + PostgreSQL + MongoDB + Cloudinary + WhatsApp OTP).
 * **Fokus Peluncuran:** **Captive Market Wilayah Semarang** (Menjawab risiko logistik produk hidup: tanaman aquascape, fauna nano, dan hardscape via COD & kurir instan).
-* **Anchor Partner:** Toko jastip lokal (*Ryan di Jastip*) sebagai **Aquaku Official Store** pertama untuk mengatasi kendala toko kosong di fase awal (*market maker*).
+* **Anchor Partner:** **Aquaku Official Store** (toko resmi internal pengelola) sebagai *market maker* pertama untuk mengatasi kendala toko kosong di fase awal.
 
 ---
 
@@ -60,7 +60,7 @@
 * **Headline:** Struktur Pembeda Penjual untuk Menjamin Keamanan Transaksi
 * **Tiga Kategori Seller di Aquaku:**
   1. **🛡️ Aquaku Official (Toko Resmi Platform):**
-     * **Hanya ada 1 toko**, dikelola oleh internal/mitra utama (*Ryan di Jastip*).
+     * **Hanya ada 1 toko**, dikelola langsung oleh tim internal platform Aquaku.
      * Berfungsi sebagai *Market Maker*: Menjamin stok bibit tanaman segar, garansi hidup, dan perlengkapan siap kirim sejak hari pertama.
      * Hanya bisa diaktifkan secara manual di database oleh pengelola sistem.
   2. **✓ Verified Store (Toko Mitra Terverifikasi):**
@@ -116,7 +116,7 @@
   1. **Door-to-Door Onboarding Toko:** Mengunjungi langsung 10 toko aquascape di Semarang (Jl. Kartini & Karimata) untuk mendemokan kemudahan pasang etalase toko.
   2. **Infiltrasi Organik Grup Media Sosial:** Membagikan thread edukasi perawatan tanaman di grup Facebook aquascape lokal yang menautkan katalog trimmingan murah di Aquaku.
   3. **Aktivasi Offline (Trimming Gathering):** Mengadakan meetup kecil komunitas hobiis di Semarang dengan konsep *"Bawa Trimminganmu, Tukar Gratis atau Jual di Aquaku"*.
-  4. **Anchor Reliability:** Memastikan toko internal (*Ryan di Jastip*) selalu siap merespons pesanan dan memberikan contoh transaksi yang memuaskan.
+  4. **Anchor Reliability:** Memastikan toko internal (*Aquaku Official*) selalu siap merespons pesanan dan memberikan contoh standar layanan prima.
 
 ---
 

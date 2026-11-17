@@ -306,7 +306,7 @@ export function ShopManager({
               required
               minLength={2}
               maxLength={100}
-              placeholder="Contoh: Ryan di Jastip atau Aquaku Official"
+              placeholder="Contoh: Toko Aquascape Semarang atau Aquaku Official"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="field w-full py-1.5 text-xs"
