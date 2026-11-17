@@ -347,7 +347,7 @@ export function AuthPageContent() {
                     />
                   </div>
                   <p className="mt-1 text-[10px] text-muted">
-                    Bisa diawali 08 atau 62 (otomatis diformat).
+                    Bisa diawali 08 atau 62 (otomatis diformat). Kode OTP tidak akan langsung dikirim saat registrasi.
                   </p>
                 </div>
 

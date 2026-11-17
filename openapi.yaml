@@ -63,8 +63,8 @@ paths:
   /auth/register:
     post:
       security: []
-      summary: Register an account and request phone verification
-      description: Meminta OTP WhatsApp outbound melalui OTP.ID jika OTP_ID_API_KEY dikonfigurasi pada backend. Kode OTP tidak dikembalikan dalam response. development_otp hanya tersedia bila key tidak dikonfigurasi dan APP_ENV development/test; production memerlukan OTP_ID_API_KEY. Jangan pernah mengekspos API key ke client.
+      summary: Register an account
+      description: Membuat akun baru tanpa otomatis mengirimkan OTP. Pengiriman OTP dilakukan secara on-demand melalui /auth/otp/resend saat pengguna meminta verifikasi nomor WhatsApp untuk menghemat kredit provider.
       requestBody:
         required: true
         content:
@@ -79,7 +79,7 @@ paths:
               required: [email, password, display_name, phone_number]
       responses:
         '201':
-          description: Akun dibuat dan OTP diminta. development_otp hanya tersedia tanpa OTP_ID_API_KEY pada APP_ENV development/test; jika OTP.ID aktif, kode dikirim melalui WhatsApp dan tidak dikembalikan.
+          description: Akun berhasil dibuat. Kode OTP tidak dikirimkan otomatis saat registrasi. Pengguna dapat meminta OTP kapan pun melalui endpoint /auth/otp/resend.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/RegisterResponse' }
