@@ -34,7 +34,16 @@ export type TokenPair = {
   user: UserProfile;
 };
 
-export type ListingCondition = "BNIB" | "NEW" | "LIKE_NEW" | "SECOND";
+export type ListingCondition =
+  | "BNIB"
+  | "NEW"
+  | "LIKE_NEW"
+  | "SECOND"
+  | "bnib"
+  | "new"
+  | "like_new"
+  | "second"
+  | string;
 export type ListingStatus = "active" | "sold" | "expired" | "inactive";
 
 export type Category = {
@@ -74,14 +83,15 @@ export type ListingSeller = {
   avatar_url: string | null;
   tier: UserTier;
   verified_store: boolean;
-  rating_average: number | null;
-  rating_count: number;
+  rating_average?: number | null;
+  rating_count?: number;
+  whatsapp_url?: string | null;
 };
 
 export type Listing = {
   id: string;
-  category_id: string;
-  region_code: string;
+  category_id?: string;
+  region_code?: string;
   title: string;
   description: string;
   price: number;
@@ -89,13 +99,14 @@ export type Listing = {
   photos: ListingPhoto[];
   seller: ListingSeller;
   status: ListingStatus;
-  moderation_hidden_at: string | null;
-  moderation_reason: string | null;
+  moderation_hidden_at?: string | null;
+  moderation_reason?: string | null;
   created_at: string;
   expires_at: string;
-  sold_at: string | null;
+  sold_at?: string | null;
   category?: Category;
   region?: Region;
+  location?: Region;
 };
 
 export type Pagination = {

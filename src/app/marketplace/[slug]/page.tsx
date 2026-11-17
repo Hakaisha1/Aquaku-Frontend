@@ -19,6 +19,7 @@ import {
 import { SaveProductButton } from "@/components/marketplace/saved-products";
 import { ProductCard } from "@/components/marketplace/product-card";
 import { ListingActions } from "@/components/marketplace/listing-actions";
+import { BackendMarketplaceListing } from "@/components/marketplace/backend-marketplace-listing";
 import { categories, formatRupiah, products, type Product } from "@/lib/marketplace-data";
 
 export function generateStaticParams() {
@@ -31,6 +32,17 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  if (
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      slug,
+    )
+  ) {
+    return {
+      title: "Detail Produk | Marketplace Aquaku",
+      description:
+        "Lihat detail listing marketplace aquascape di Aquaku Semarang.",
+    };
+  }
   const product = products.find((item) => item.slug === slug);
   return {
     title: product?.name ?? "Listing tidak ditemukan",
@@ -46,68 +58,19 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  let product: Product | undefined = products.find((item) => item.slug === slug);
 
   const isUuid =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
       slug,
     );
 
-  if (!product && isUuid) {
-    try {
-      const res = await fetch(
-        `https://aquaku-backend-staging.up.railway.app/api/v1/marketplace/listings/${slug}`,
-      );
-      if (res.ok) {
-        const json = await res.json();
-        const l = json.data;
-        if (l) {
-          const photoUrls =
-            l.photos?.length > 0
-              ? l.photos.map((p: { url: string }) => p.url)
-              : ["/images/plant-anubias.svg"];
-          product = {
-            slug: l.id,
-            name: l.title,
-            category: "tanaman",
-            price: l.price,
-            unit: "unit",
-            image: photoUrls[0],
-            gallery: photoUrls,
-            condition: l.condition,
-            seller: l.seller?.display_name || "Hobiis Semarang",
-            sellerInitials: (l.seller?.display_name || "H")
-              .slice(0, 2)
-              .toUpperCase(),
-            sellerTier: l.seller?.tier === "personal" ? "Personal" : "Toko",
-            verified: !!l.seller?.verified_store,
-            district: l.region?.district || "Semarang",
-            delivery: "COD / meetup",
-            description: l.description,
-            specs: [
-              { label: "Kondisi", value: l.condition },
-              {
-                label: "Lokasi",
-                value: l.region
-                  ? `${l.region.kelurahan}, ${l.region.district}`
-                  : "Semarang",
-              },
-              { label: "Status", value: l.status },
-            ],
-            tags: [l.condition, "COD Semarang"],
-            posted: new Date(l.created_at).toLocaleDateString("id-ID", {
-              day: "numeric",
-              month: "short",
-            }),
-          };
-        }
-      }
-    } catch {
-      // fallback
-    }
+  if (isUuid) {
+    return <BackendMarketplaceListing listingId={slug} />;
   }
 
+  const product: Product | undefined = products.find((item) => item.slug === slug);
   if (!product) notFound();
+
   const category = categories.find((item) => item.slug === product.category);
   const related = products
     .filter((item) => item.slug !== product.slug)
@@ -117,6 +80,7 @@ export default async function ProductPage({
         Number(a.category === product.category),
     )
     .slice(0, 4);
+
   return (
     <div className="mx-auto max-w-[1200px]">
       <Breadcrumbs
