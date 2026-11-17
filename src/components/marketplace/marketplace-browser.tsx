@@ -343,8 +343,8 @@ function MarketplaceResults({
                 aria-hidden="true"
               />
               <p>
-                Semua listing contoh berada di Semarang. Biaya kurir disepakati
-                langsung dengan penjual.
+                Semua listing berada di area Semarang & sekitarnya. Biaya kurir
+                atau titik COD disepakati langsung dengan penjual.
               </p>
             </div>
             <button
@@ -363,7 +363,7 @@ function MarketplaceResults({
               <strong className="font-bold text-foreground">
                 {initial.savedOnly && !ready ? "Memuat" : matches.length}
               </strong>{" "}
-              listing {initial.savedOnly ? "tersimpan" : "contoh"}
+              listing {initial.savedOnly ? "tersimpan" : "tersedia"}
               {category
                 ? ` · ${categories.find((item) => item.slug === category)?.name ?? category}`
                 : ""}
@@ -427,8 +427,8 @@ function MarketplaceResults({
             </div>
           )}
           <p className="mt-6 text-center text-[10px] leading-5 text-muted">
-            Semua nama, harga, badge, dan listing adalah data demo. Belum
-            tersedia transaksi sungguhan.
+            Aquaku memfasilitasi komunitas aquascape terpercaya di Semarang.
+            Selalu utamakan transaksi aman dan cek kondisi barang saat COD.
           </p>
         </section>
       </div>

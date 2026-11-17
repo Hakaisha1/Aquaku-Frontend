@@ -32,7 +32,7 @@ export function LocalForumThread({ slug }: { slug: string }) {
           <p className="page-description">
             Tautan ini hanya bisa dibuka di browser yang menyimpan diskusinya.
             Data mungkin sudah dihapus atau penyimpanan browser tidak tersedia.
-            Diskusi demo tidak disimpan di server.
+            Diskusi draf lokal tidak disimpan di server.
           </p>
           <Link href="/forum" className="button-primary mt-5">
             Kembali ke forum

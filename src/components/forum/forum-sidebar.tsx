@@ -30,7 +30,7 @@ export function ForumSidebar() {
               />
             </div>
             <div className="p-5">
-              <p className="mb-2 text-xs text-muted">Cerita tank contoh</p>
+              <p className="mb-2 text-xs text-muted">Cerita tank pilihan</p>
               <h3 className="font-bold leading-relaxed group-hover:text-brand">
                 Pelan-pelan, jadi rimbun.
               </h3>
@@ -55,9 +55,8 @@ export function ForumSidebar() {
           Ruang ngobrol hobiis aquascape Semarang. Tanya hal dasar, ceritakan
           kendala, atau bagikan sudut hijau yang sedang kamu rawat.
         </p>
-        <p className="mt-3 border-l-2 border-border pl-3 text-xs leading-6 text-muted">
-          Ini forum demo. Profil, diskusi, dan data tank adalah contoh, bukan
-          aktivitas anggota sungguhan.
+        <p className="mt-3 border-l-2 border-brand/50 pl-3 text-xs leading-6 text-muted">
+          Komunitas Aquaku Semarang. Berbagi pengalaman seputar tanaman air, fauna, dan parameter aquascape bersama sesama hobiis.
         </p>
       </section>
 

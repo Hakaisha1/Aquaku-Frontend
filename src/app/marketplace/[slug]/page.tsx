@@ -47,7 +47,7 @@ export async function generateMetadata({
   return {
     title: product?.name ?? "Listing tidak ditemukan",
     description: product
-      ? `${product.name} dari ${product.seller}, ${product.district}, Semarang. Listing contoh Aquaku.`
+      ? `${product.name} dari ${product.seller}, ${product.district}, Semarang. Listing di Aquaku Semarang.`
       : "Listing tidak ditemukan di Aquaku.",
   };
 }
@@ -101,7 +101,7 @@ export default async function ProductPage({
             <span className="tag">{product.condition}</span>
             <span className="flex items-center gap-1 text-[10px] text-muted">
               <Clock3 size={12} aria-hidden="true" />
-              {product.posted} · Contoh
+              {product.posted}
             </span>
           </div>
           <h1 className="text-2xl font-extrabold leading-tight tracking-[-0.04em] xl:text-[30px]">
@@ -136,14 +136,14 @@ export default async function ProductPage({
                     <BadgeCheck
                       size={16}
                       className="text-brand"
-                      aria-label="Badge verifikasi pada profil contoh"
+                      aria-label="Toko Terverifikasi"
                     />
                   ) : null}
                 </h2>
                 <p className="mt-1 text-[11px] text-muted">
                   {product.sellerTier === "Toko"
-                    ? "Toko terverifikasi · Data contoh"
-                    : "Hobiis Personal · Data contoh"}
+                    ? "Toko terverifikasi"
+                    : "Hobiis Personal"}
                 </p>
               </div>
             </div>
@@ -173,7 +173,7 @@ export default async function ProductPage({
           </section>
           <ContactSeller product={product} />
           <p className="mt-2 text-center text-[10px] text-muted">
-            Contoh listing · Hubungi penjual melalui WhatsApp
+            Hubungi penjual melalui WhatsApp untuk konfirmasi stok & COD
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <SaveProductButton

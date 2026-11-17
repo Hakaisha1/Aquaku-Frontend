@@ -57,7 +57,7 @@ export function ProductCard({
             <BadgeCheck
               size={13}
               className="text-brand"
-              aria-label="Badge toko pada data contoh"
+              aria-label="Toko Terverifikasi"
             />
           ) : null}
           <span className="truncate">{product.seller}</span>

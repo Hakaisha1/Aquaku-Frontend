@@ -78,7 +78,7 @@ export default async function ForumThreadPage({ params }: ThreadPageProps) {
               <span className="rounded-full bg-soft px-3 py-1.5 text-brand">
                 {post.category}
               </span>
-              <span className="text-muted">Diskusi contoh</span>
+              <span className="text-muted">Diskusi Komunitas</span>
             </div>
             <h1 className="text-2xl font-extrabold leading-tight tracking-[-0.035em] text-foreground sm:text-3xl lg:text-[2.15rem]">
               {post.title}
@@ -128,8 +128,7 @@ export default async function ForumThreadPage({ params }: ThreadPageProps) {
               ))}
             </div>
             <div className="mt-7 border-t border-border pt-4 text-xs leading-6 text-muted">
-              Seluruh profil dan percakapan di sini adalah contoh. Kamu bisa
-              mencoba komentar lokal di bawah tanpa masuk atau membuat akun.
+              Diskusikan seputar perawatan aquascape, parameter air, dan kebutuhan tanaman bersama komunitas hobiis Semarang.
             </div>
           </article>
 
@@ -177,7 +176,7 @@ export default async function ForumThreadPage({ params }: ThreadPageProps) {
               ))}
             </dl>
             <p className="mt-4 text-xs leading-6 text-muted">
-              Data contoh dari penulis, bukan target universal. Kebutuhan setiap
+              Catatan dari penulis untuk tank terkait. Kebutuhan setiap
               tanaman dan fauna bisa berbeda.
             </p>
           </section>

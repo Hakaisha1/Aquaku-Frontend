@@ -105,7 +105,12 @@ export function BackendMarketplaceListing({
 }: {
   listingId: string;
 }) {
-  const { user, updateWhatsAppNumber } = useAuth();
+  const {
+    user,
+    openAuthModal,
+    openPhoneVerifyModal,
+    updateWhatsAppNumber,
+  } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -468,17 +473,30 @@ export function BackendMarketplaceListing({
                   </div>
                 )}
 
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!user) {
+                      openAuthModal("login");
+                      return;
+                    }
+                    if (!user.phone_verified) {
+                      openPhoneVerifyModal();
+                      return;
+                    }
+                    window.open(url, "_blank", "noopener,noreferrer");
+                  }}
                   className="button-primary w-full inline-flex items-center justify-center gap-2 py-3 text-sm font-bold shadow-sm"
                 >
                   <MessageCircle size={18} aria-hidden="true" />
                   Chat Penjual di WhatsApp
-                </a>
+                </button>
                 <p className="mt-1.5 text-center text-[10px] text-muted">
-                  {hasDirectNumber
+                  {!user
+                    ? "Masuk / Login & verifikasi nomor HP terlebih dahulu untuk menghubungi penjual."
+                    : !user.phone_verified
+                    ? "Verifikasi nomor HP akun kamu untuk menghubungi penjual."
+                    : hasDirectNumber
                     ? `Membuka obrolan WhatsApp langsung dengan penjual (+${displayTarget}) beserta draf pertanyaan.`
                     : `Penjual belum mendaftarkan nomor WhatsApp langsung di server. WhatsApp akan terbuka dengan draf pesan.`}
                 </p>

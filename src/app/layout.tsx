@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/layout/theme-provider";
 import { SavedProductsProvider } from "@/components/marketplace/saved-products";
 import { ForumProvider } from "@/components/forum/forum-provider";
 import { AuthProvider } from "@/context/auth-context";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -44,6 +45,7 @@ export default function RootLayout({
             </SavedProductsProvider>
           </AuthProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

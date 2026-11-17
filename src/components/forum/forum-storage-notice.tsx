@@ -12,7 +12,7 @@ export function ForumStorageNotice() {
       className="mb-5 rounded-xl border border-border bg-soft px-4 py-3 text-xs leading-6 text-muted"
     >
       <span className="font-semibold text-foreground">
-        {memoryOnly ? "Penyimpanan browser tidak tersedia." : "Ruang demo lokal."}
+        {memoryOnly ? "Penyimpanan browser tidak tersedia." : "Sesi interaktif lokal."}
       </span>{" "}
       {memoryOnly
         ? "Diskusi dan balasan masih bisa dicoba selama aplikasi terbuka, tetapi perubahan bisa hilang saat refresh atau tab ditutup. Tidak dikirim ke server."

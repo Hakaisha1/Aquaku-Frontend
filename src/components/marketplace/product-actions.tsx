@@ -75,7 +75,7 @@ export function ContactSeller({
             ) : (
               <Copy size={16} aria-hidden="true" />
             )}
-            Salin pesan contoh
+            Salin draf pesan
           </button>
           <a
             href={`https://wa.me/?text=${encodeURIComponent(message)}`}
