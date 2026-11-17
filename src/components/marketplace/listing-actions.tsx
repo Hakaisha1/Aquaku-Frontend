@@ -48,7 +48,20 @@ export function ListingActions({
       if (err instanceof ApiError) {
         if (err.message.includes("validation")) {
           setError(
-            "Validasi gagal: Pastikan format ID Pembeli adalah UUID yang valid (36 karakter), atau kosongkan kolom jika pembeli tidak terhubung."
+            "Validasi gagal: Format ID Pembeli harus berupa UUID yang valid (36 karakter), atau kosongkan kolom jika pembeli bertransaksi via WhatsApp / COD."
+          );
+        } else if (
+          err.status === 403 ||
+          err.code === "FORBIDDEN" ||
+          err.message.toLowerCase().includes("access denied") ||
+          err.message.toLowerCase().includes("forbidden")
+        ) {
+          setError(
+            "Akses Ditolak (403): Penjual dilarang menautkan akunnya sendiri, atau akun pembeli belum memverifikasi nomor HP (OTP). Jika transaksi dilakukan via WhatsApp / COD, silakan klik tombol di bawah untuk menandai terjual langsung tanpa menautkan pembeli."
+          );
+        } else if (err.status === 404) {
+          setError(
+            "ID Pembeli tidak ditemukan di sistem. Pastikan pembeli sudah mendaftar akun Aquaku dan menyalin ID dari menu Profil mereka."
           );
         } else {
           setError(err.message);
@@ -64,11 +77,27 @@ export function ListingActions({
   const handleMarkSold = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = buyerIdInput.trim();
-    if (trimmed && !UUID_REGEX.test(trimmed)) {
-      setError(
-        `"${trimmed}" bukan format User ID yang valid. ID Pembeli harus berupa kode UUID 36 karakter (misal: fbe7f4e4-f10a-49b2-9582-656ced97354a). Pembeli dapat menyalin ID ini dari menu Profil akun mereka.`
-      );
-      return;
+    if (trimmed) {
+      if (!UUID_REGEX.test(trimmed)) {
+        setError(
+          `"${trimmed}" bukan format User ID yang valid. ID Pembeli harus berupa kode UUID 36 karakter (misal: fbe7f4e4-f10a-49b2-9582-656ced97354a). Pembeli dapat menyalin ID ini dari menu Profil akun mereka.`
+        );
+        return;
+      }
+
+      const currentUserId = user?.id?.toLowerCase();
+      const listingSellerId = sellerId?.toLowerCase();
+      const inputId = trimmed.toLowerCase();
+
+      if (
+        (currentUserId && inputId === currentUserId) ||
+        (listingSellerId && inputId === listingSellerId)
+      ) {
+        setError(
+          "ID yang kamu masukkan adalah ID akun penjualmu sendiri. Sistem melarang penjual menandai dirinya sendiri sebagai pembeli. Masukkan ID akun milik pembeli lain, atau kosongkan kolom ini jika transaksi disepakati via WhatsApp / COD."
+        );
+        return;
+      }
     }
     await executeMarkSold(trimmed || undefined);
   };
@@ -185,7 +214,7 @@ export function ListingActions({
             if (e.target === e.currentTarget) setSoldModalOpen(false);
           }}
         >
-          <div className="modal-panel-animate w-full max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-xl">
+          <div className="modal-panel-animate w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl">
             <h3 className="text-base font-bold text-foreground">
               Tandai Listing Terjual
             </h3>
@@ -193,6 +222,22 @@ export function ListingActions({
               Kamu bisa menandai terjual tanpa menautkan pembeli, atau memasukkan
               ID Pembeli untuk mengaktifkan konfirmasi transaksi dan rating.
             </p>
+
+            {/* Panduan Persyaratan Akses */}
+            <div className="mt-3.5 space-y-1.5 rounded-xl border border-border bg-canvas p-3 text-[11px] text-muted">
+              <p className="font-semibold text-foreground">💡 Ketentuan Menautkan ID Pembeli:</p>
+              <ul className="list-disc space-y-1 pl-4 leading-relaxed">
+                <li>
+                  <strong>Bersifat Opsional:</strong> Kosongkan kolom jika transaksi disepakati di luar aplikasi (COD langsung / WhatsApp). Listing akan langsung berstatus Terjual.
+                </li>
+                <li>
+                  <strong>Bukan Akun Sendiri:</strong> Dilarang memasukkan ID akun penjual sendiri. Sistem memblokir transaksi fiktif ke akun sendiri (403 Forbidden).
+                </li>
+                <li>
+                  <strong>Pembeli Terverifikasi (Verified):</strong> Akun pembeli wajib sudah mendaftar dan memverifikasi nomor HP dengan OTP WhatsApp.
+                </li>
+              </ul>
+            </div>
 
             <form onSubmit={handleMarkSold} className="mt-4 space-y-3.5">
               {error && (

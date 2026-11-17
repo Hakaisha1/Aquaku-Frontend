@@ -565,8 +565,26 @@ export function AuthModals() {
                 <span className="text-[10px] text-muted">UUID Unik</span>
               </div>
               <p className="mt-1 text-[11px] leading-5 text-muted">
-                Salin kode ID ini dan berikan ke penjual saat kamu membeli barang agar penjual dapat menautkan transaksi ke akunmu untuk konfirmasi dan ulasan rating.
+                Salin kode ID ini dan berikan ke penjual saat kamu menjadi <strong>Pembeli</strong> agar penjual dapat menautkan transaksi ke akunmu untuk konfirmasi dan ulasan rating.
               </p>
+              <div className="mt-2 rounded-lg bg-surface/60 border border-border/80 px-3 py-2 text-[11px] text-muted">
+                💡 <strong>Catatan:</strong> Berikan ID ini ke penjual saat membeli barang dari orang lain. Jangan masukkan ID akunmu sendiri pada listing jualanmu.
+              </div>
+              {!user.phone_verified && (
+                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-[11px] text-amber-700 dark:text-amber-400">
+                  <span>Nomor HP belum diverifikasi. Akun belum memenuhi syarat sebagai <em>verified buyer</em> untuk menerima tautan transaksi.</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeAccountModal();
+                      openPhoneVerifyModal();
+                    }}
+                    className="shrink-0 font-bold underline hover:text-amber-800 dark:hover:text-amber-300"
+                  >
+                    Verifikasi OTP
+                  </button>
+                </div>
+              )}
               <div className="mt-2.5 flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 py-2 font-mono text-xs">
                 <span className="truncate select-all text-foreground">{user.id}</span>
                 <button
