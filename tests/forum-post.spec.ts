@@ -9,6 +9,8 @@ import {
 import {
   backendPostToForumPost,
   forumCategories,
+  forumPosts,
+  resolveForumCommentCount,
   type ForumCategory,
 } from "@/lib/forum-data";
 import type { BackendForumPost } from "@/types/api";
@@ -346,5 +348,19 @@ test.describe("Forum Post Unit Tests: Transformasi Respons Backend (backendPostT
     const result = backendPostToForumPost(postWithAnonAuthor);
     expect(result.author).toBe("Anggota Komunitas");
     expect(result.initials).toBe("AN");
+  });
+
+  test("mempertahankan jumlah komentar dari backend saat tidak ada thread lokal", () => {
+    const mapped = backendPostToForumPost(dummyBackendPost);
+    expect(resolveForumCommentCount(mapped)).toBe(5);
+    expect(resolveForumCommentCount({ slug: "6b04c8f3f2419ac013f71858", comments: 4 })).toBe(4);
+    expect(resolveForumCommentCount({ slug: "6b04c8f3f2419ac013f71858", comments: 0 })).toBe(0);
+  });
+
+  test("menghitung komentar fixture statis ditambah balasan lokal", () => {
+    const fixture = forumPosts[0];
+    const baseCount = resolveForumCommentCount(fixture);
+    expect(baseCount).toBeGreaterThan(0);
+    expect(resolveForumCommentCount(fixture, 2)).toBe(baseCount + 2);
   });
 });

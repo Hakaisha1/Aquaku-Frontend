@@ -425,6 +425,21 @@ export function getForumThread(slug: string): ForumThread | undefined {
   return forumThreads[slug];
 }
 
+/**
+ * Resolves total visible comment count for both static demo threads (with nested replies)
+ * and backend forum posts (whose count arrives in `post.comments`).
+ */
+export function resolveForumCommentCount(
+  post: Pick<ForumPost, "slug" | "comments">,
+  localReplyCount = 0,
+): number {
+  const thread = getForumThread(post.slug);
+  const baseCount = thread
+    ? countForumComments(thread.comments)
+    : Math.max(0, post.comments || 0);
+  return baseCount + Math.max(0, localReplyCount);
+}
+
 import type { BackendForumPost } from "@/types/api";
 
 export function backendPostToForumPost(bp: BackendForumPost): ForumPost {

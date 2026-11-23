@@ -9,8 +9,8 @@ import {
   type ReactNode,
 } from "react";
 import {
-  countForumComments,
   getForumThread,
+  resolveForumCommentCount,
   type ForumComment,
   type ForumPost,
 } from "@/lib/forum-data";
@@ -231,13 +231,11 @@ export function ForumProvider({ children }: { children: ReactNode }) {
       // Render selectors must use the React snapshot too, including during hydration.
       getComments: (slug) => getSessionComments(snapshot, slug),
       getCommentCount: (post) => {
-        const fixtureCount = countForumComments(
-          getForumThread(post.slug)?.comments ?? [],
-        );
-        return snapshot.replies.reduce(
+        const localReplyCount = snapshot.replies.reduce(
           (total, reply) => total + (reply.slug === post.slug ? 1 : 0),
-          fixtureCount,
+          0,
         );
+        return resolveForumCommentCount(post, localReplyCount);
       },
     }),
     [snapshot, store],
